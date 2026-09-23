@@ -252,6 +252,7 @@
 
 /* Presentation live */
 .live-page {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -260,6 +261,26 @@
   gap: var(--space-4);
   text-align: center;
   padding: var(--space-6);
+}
+
+.live-exit {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+}
+
+.live-exit:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 
 .live-phase {

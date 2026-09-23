@@ -31,6 +31,14 @@ export default function PresentationLive() {
     return () => clearInterval(intervalRef.current);
   }, [running]);
 
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") navigate("/dashboard");
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
+
   if (!order || order.length === 0) {
     return (
       <div className="page">
@@ -61,6 +69,15 @@ export default function PresentationLive() {
 
   return (
     <div className="live-page">
+      <button
+        className="live-exit"
+        onClick={() => navigate("/dashboard")}
+        aria-label="Exit presentation mode"
+        title="Exit (Esc)"
+      >
+        Exit
+      </button>
+
       <p className="live-phase">{phase === "presenting" ? "Presenting" : "Q&A"}</p>
       <h1 className="live-name">{currentGroup?.name}</h1>
 
