@@ -7,8 +7,8 @@ export default function Randomizer() {
   const [order, setOrderPreview] = useState(null);
   const navigate = useNavigate();
 
-  function handleRandomize() {
-    const newOrder = randomize();
+  async function handleRandomize() {
+    const newOrder = await randomize();
     setOrderPreview(newOrder);
   }
 
