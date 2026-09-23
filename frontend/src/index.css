@@ -1,0 +1,136 @@
+/* Design tokens
+   Palette + type choices are deliberate: cool ink/paper base, single violet
+   accent, mono for anything numeric (timers, order numbers) so the "command
+   center" reads as instrumentation rather than a form. */
+:root {
+  --color-bg: oklch(98% 0.004 260);
+  --color-surface: oklch(100% 0 0);
+  --color-border: oklch(89% 0.007 260);
+  --color-text: oklch(22% 0.02 260);
+  --color-text-muted: oklch(48% 0.015 260);
+  --color-accent: oklch(52% 0.19 276);
+  --color-accent-text: oklch(99% 0.005 260);
+  --color-ready: oklch(58% 0.14 150);
+  --color-ready-bg: oklch(95% 0.04 150);
+  --color-pending: oklch(62% 0.17 45);
+  --color-pending-bg: oklch(95% 0.05 55);
+  --color-danger: oklch(55% 0.2 25);
+
+  --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --radius: 6px;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+button, input {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  transition: border-color 0.12s ease;
+}
+
+.btn:hover {
+  border-color: var(--color-text-muted);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-danger {
+  color: var(--color-danger);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+input[type="text"], input[type="password"] {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
