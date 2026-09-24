@@ -1232,9 +1232,9 @@ function ArchitectureChapter({ onReproduce }) {
 
       <div className="cx-grid-2">
         <div className="cx-card" key={node.id}>
-          <p className="cx-kicker">Why · {node.label}</p>
+          <p className="cx-kicker">Trade-offs · {node.label}</p>
           <ul className="cx-list">
-            {node.why.map((w) => (
+            {node.tradeoffs.map((w) => (
               <li key={w}>{w}</li>
             ))}
           </ul>

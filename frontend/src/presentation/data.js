@@ -172,10 +172,9 @@ export const ARCHITECTURE = [
     label: "Frontend",
     tech: "React · Vite · Router",
     port: ":5173",
-    why: [
-      "One context, no state library — the data is small.",
-      "Server is the source of truth; refresh never loses state.",
-      "Only link to the API: VITE_API_BASE_URL.",
+    tradeoffs: [
+      "Local: no dealing with the cloud.",
+      "Can't share work — it only runs on this machine.",
     ],
   },
   {
@@ -183,10 +182,9 @@ export const ARCHITECTURE = [
     label: "REST API",
     tech: "Express · JSON",
     port: ":3000",
-    why: [
-      "Resource routes per classroom.",
-      "Port and CORS origin from env — cloud-ready.",
-      "Server-side shuffle keeps the order fair and shared.",
+    tradeoffs: [
+      "Requires local setup — install and run both servers.",
+      "Local auth: name-only sign-in, no SSO.",
     ],
   },
   {
@@ -194,11 +192,7 @@ export const ARCHITECTURE = [
     label: "Database",
     tech: "SQLite",
     port: "data.sqlite",
-    why: [
-      "Zero setup; migrations run on boot.",
-      "Order + current group persisted per classroom.",
-      "Trade-off: single file. Swappable behind the API for A3.",
-    ],
+    tradeoffs: ["No hosted database — data isn't stored anywhere beyond this laptop."],
   },
 ];
 
