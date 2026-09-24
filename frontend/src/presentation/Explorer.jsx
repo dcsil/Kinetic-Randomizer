@@ -185,7 +185,6 @@ function FindingModalBody({ finding, onShowStep, onReproduce }) {
     <>
       <div className="cx-modal-head">
         <SeverityPill severity={finding.severity} />
-        <span className="cx-muted">Steps {finding.steps.join(", ")}</span>
       </div>
       <h2 className="cx-modal-title">{finding.title}</h2>
       {finding.severity === "great" && finding.detail && <p className="cx-lead">{finding.detail}</p>}
@@ -590,10 +589,11 @@ function FindingsChapter({ openFinding }) {
             <SeverityPill severity={f.severity} />
             <span className="cx-finding-title">{f.title}</span>
             {f.detail && <span className="cx-muted cx-small">{f.detail}</span>}
-            <span className="cx-finding-foot">
-              Steps {f.steps.join(", ")}
-              {f.rec && <span className="cx-pill cx-pill-rec">Rec #{f.rec}</span>}
-            </span>
+            {f.rec && (
+              <span className="cx-finding-foot">
+                <span className="cx-pill cx-pill-rec">Rec #{f.rec}</span>
+              </span>
+            )}
           </button>
         ))}
       </div>
