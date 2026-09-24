@@ -135,10 +135,12 @@ export default function PresentationLive() {
       </aside>
 
       <p className="live-phase">{phase === "presenting" ? "Presenting" : "Q&A"}</p>
-      <h1 className="live-name">{currentGroup?.name}</h1>
-      {currentGroup?.members && (
-        <p className="live-members">{currentGroup.members}</p>
-      )}
+      <div className="live-heading">
+        <h1 className="live-name">{currentGroup?.name}</h1>
+        {currentGroup?.members && (
+          <p className="live-members">{currentGroup.members.split(", ").join(" · ")}</p>
+        )}
+      </div>
 
       <div className={`live-timer ${isWarning ? "live-timer-warning" : ""} ${isDone ? "live-timer-done" : ""}`}>
         {formatTime(secondsLeft)}
