@@ -5,28 +5,20 @@ import { useApp } from "../context/AppContext";
 export default function Classrooms() {
   const {
     classrooms,
-    students,
     refreshClassrooms,
-    refreshStudents,
     addClassroom,
     updateClassroom,
     deleteClassroom,
-    addStudent,
-    updateStudent,
-    deleteStudent,
     selectClassroom,
   } = useApp();
   const navigate = useNavigate();
   const [editingClassroomId, setEditingClassroomId] = useState(null);
   const [showAddClassroom, setShowAddClassroom] = useState(false);
-  const [editingStudentId, setEditingStudentId] = useState(null);
-  const [showAddStudent, setShowAddStudent] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     selectClassroom(null);
     refreshClassrooms();
-    refreshStudents();
   }, []);
 
   async function handleOpen(id) {
@@ -39,13 +31,11 @@ export default function Classrooms() {
   }
 
   return (
-    <div className="page">
+    <div className="page page-wide">
       <div className="page-header">
         <div>
           <h1>Classrooms</h1>
-          <p className="page-sub">
-            Select a classroom to manage its groups. Students stay shared.
-          </p>
+          <p className="page-sub">Select a classroom to manage its groups.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAddClassroom(true)}>
           + Add classroom
@@ -67,7 +57,7 @@ export default function Classrooms() {
         />
       )}
 
-      <div className="group-list">
+      <div className="classroom-list">
         {classrooms.map((classroom) =>
           editingClassroomId === classroom.id ? (
             <NameForm
@@ -82,22 +72,19 @@ export default function Classrooms() {
               onError={setError}
             />
           ) : (
-            <div className="group-card classroom-card" key={classroom.id}>
+            <div className="classroom-card" key={classroom.id}>
               <button
                 type="button"
                 className="classroom-open"
                 onClick={() => handleOpen(classroom.id)}
               >
                 <h3>{classroom.name}</h3>
-                <p className="group-members">
+                <p className="classroom-meta">
                   {classroom.groupCount}{" "}
                   {classroom.groupCount === 1 ? "group" : "groups"}
                 </p>
               </button>
-              <div className="group-card-actions">
-                <button className="btn" onClick={() => handleOpen(classroom.id)}>
-                  Open
-                </button>
+              <div className="classroom-card-actions">
                 <button
                   className="btn"
                   onClick={() => setEditingClassroomId(classroom.id)}
@@ -118,73 +105,6 @@ export default function Classrooms() {
           <p className="empty-state">No classrooms yet — add one to get started.</p>
         )}
       </div>
-
-      <section className="roster">
-        <div className="page-header">
-          <div>
-            <h2>Students</h2>
-            <p className="page-sub">
-              One shared roster. Assign these students to groups inside each classroom.
-            </p>
-          </div>
-          <button className="btn btn-primary" onClick={() => setShowAddStudent(true)}>
-            + Add student
-          </button>
-        </div>
-
-        {showAddStudent && (
-          <NameForm
-            label="Student name"
-            placeholder="e.g. Ada Lovelace"
-            onCancel={() => setShowAddStudent(false)}
-            onSave={async (name) => {
-              await addStudent({ name });
-              setShowAddStudent(false);
-            }}
-            onError={setError}
-          />
-        )}
-
-        <div className="group-list">
-          {students.map((student) =>
-            editingStudentId === student.id ? (
-              <NameForm
-                key={student.id}
-                label="Student name"
-                initial={student.name}
-                onCancel={() => setEditingStudentId(null)}
-                onSave={async (name) => {
-                  await updateStudent(student.id, { name });
-                  setEditingStudentId(null);
-                }}
-                onError={setError}
-              />
-            ) : (
-              <div className="group-card" key={student.id}>
-                <div>
-                  <h3>{student.name}</h3>
-                </div>
-                <div className="group-card-actions">
-                  <button className="btn" onClick={() => setEditingStudentId(student.id)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => deleteStudent(student.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            )
-          )}
-          {students.length === 0 && (
-            <p className="empty-state">
-              No students yet — add them here, then assign them to classroom groups.
-            </p>
-          )}
-        </div>
-      </section>
     </div>
   );
 }
@@ -208,7 +128,7 @@ function NameForm({ label, initial = "", placeholder, onCancel, onSave, onError 
   }
 
   return (
-    <form className="group-form" onSubmit={handleSubmit}>
+    <form className="group-form classroom-form" onSubmit={handleSubmit}>
       <div className="group-form-fields">
         <div>
           <label htmlFor="shared-name">{label}</label>
