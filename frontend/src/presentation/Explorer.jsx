@@ -212,10 +212,12 @@ function FindingModalBody({ finding, onShowStep, onReproduce }) {
             <span className="cx-analysis-k">Cause</span>
             <span>{finding.rootCause}</span>
           </div>
-          <div className="cx-analysis-row">
-            <span className="cx-analysis-k">Consequence</span>
-            <span>{finding.detail}</span>
-          </div>
+          {finding.detail && (
+            <div className="cx-analysis-row">
+              <span className="cx-analysis-k">Consequence</span>
+              <span>{finding.detail}</span>
+            </div>
+          )}
           <div className="cx-analysis-row">
             <span className="cx-analysis-k">Time lost</span>
             <span>{finding.timeLost}</span>
