@@ -10,6 +10,7 @@ import {
   REFLECTION,
   STEPS,
   TEAM,
+  TRADEOFFS,
 } from "./data";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -1237,8 +1238,10 @@ function ArchitectureChapter({ onReproduce }) {
         <div className="cx-card">
           <p className="cx-kicker">Trade-offs</p>
           <ul className="cx-list">
-            {ARCHITECTURE.flatMap((n) => n.tradeoffs).map((w) => (
-              <li key={w}>{w}</li>
+            {TRADEOFFS.map((t) => (
+              <li key={t.text} className={`cx-tradeoff-${t.tone}`}>
+                {t.text}
+              </li>
             ))}
           </ul>
         </div>

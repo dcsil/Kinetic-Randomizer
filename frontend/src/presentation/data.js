@@ -174,28 +174,29 @@ export const ARCHITECTURE = [
     label: "Frontend",
     tech: "React · Vite · Router",
     port: ":5173",
-    tradeoffs: [
-      "Local: no dealing with the cloud.",
-      "Can't share work since it only runs on this machine.",
-    ],
   },
   {
     id: "api",
     label: "REST API",
     tech: "Express · JSON",
     port: ":3000",
-    tradeoffs: [
-      "Requires local setup to install and run both servers.",
-      "Local auth: name-only sign-in, no SSO.",
-    ],
   },
   {
     id: "db",
     label: "Database",
     tech: "SQLite",
     port: "data.sqlite",
-    tradeoffs: ["No hosted database, so data isn't stored anywhere beyond this laptop."],
   },
+];
+
+// Local-only trade-offs shown on the MVP slide: "pro" is tinted green, "con" red.
+export const TRADEOFFS = [
+  { tone: "pro", text: "Local: no dealing with the cloud." },
+  { tone: "con", text: "Can't share work since it only runs on this machine." },
+  { tone: "con", text: "Requires local setup to install and run both servers." },
+  { tone: "con", text: "Local auth: name-only sign-in, no SSO." },
+  { tone: "con", text: "No hosted database, so data isn't stored anywhere beyond this laptop." },
+  { tone: "pro", text: "Makes for an easy development process to iterate quickly." },
 ];
 
 export const ENDPOINTS = [
