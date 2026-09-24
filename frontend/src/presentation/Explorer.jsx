@@ -575,28 +575,10 @@ function EvidenceThumb({ evidence, compact }) {
 }
 
 function FindingsChapter({ openFinding }) {
-  const [filter, setFilter] = useState("all");
-  const shown = FINDINGS.filter((f) => filter === "all" || f.severity === filter);
-  const counts = (sev) => FINDINGS.filter((f) => f.severity === sev).length;
   return (
     <div className="cx-findings">
-      <div className="cx-filter" role="tablist" aria-label="Filter by severity">
-        {["all", "great", "moderate", "severe"].map((k) => (
-          <button
-            key={k}
-            type="button"
-            role="tab"
-            aria-selected={filter === k}
-            className={`cx-filter-btn ${filter === k ? "is-active" : ""} cx-filter-${k}`}
-            onClick={() => setFilter(k)}
-          >
-            {k === "all" ? "All" : SEVERITY_LABEL[k]}
-            <span className="cx-filter-count">{k === "all" ? FINDINGS.length : counts(k)}</span>
-          </button>
-        ))}
-      </div>
       <div className="cx-finding-grid">
-        {shown.map((f) => (
+        {FINDINGS.map((f) => (
           <button
             key={f.id}
             type="button"
