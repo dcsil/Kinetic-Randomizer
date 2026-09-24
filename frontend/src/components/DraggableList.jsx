@@ -1,7 +1,8 @@
 import { useState } from "react";
 
 // Ordered list whose items can be reordered by drag and drop, or from the
-// keyboard with Alt+ArrowUp / Alt+ArrowDown on a focused item.
+// keyboard with Alt+Arrow keys on a focused item. Pass `horizontal` to lay the
+// items out in a row (drop indicator and arrow keys follow the axis).
 export default function DraggableList({
   items,
   onReorder,
@@ -9,6 +10,7 @@ export default function DraggableList({
   getItemClassName,
   className = "",
   label,
+  horizontal = false,
 }) {
   const [dragIndex, setDragIndex] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
@@ -27,7 +29,10 @@ export default function DraggableList({
   }
 
   return (
-    <ol className={`drag-list ${className}`} aria-label={label}>
+    <ol
+      className={`drag-list ${horizontal ? "drag-list-horizontal" : ""} ${className}`}
+      aria-label={label}
+    >
       {items.map((id, index) => {
         const classes = ["drag-item"];
         if (dragIndex === index) classes.push("drag-item-dragging");
@@ -43,7 +48,7 @@ export default function DraggableList({
             className={classes.join(" ")}
             draggable
             tabIndex={0}
-            title="Drag to reorder (or Alt+↑/↓)"
+            title={`Drag to reorder (or Alt+${horizontal ? "←/→" : "↑/↓"})`}
             onDragStart={(e) => {
               setDragIndex(index);
               e.dataTransfer.effectAllowed = "move";
@@ -63,10 +68,12 @@ export default function DraggableList({
             onDragEnd={reset}
             onKeyDown={(e) => {
               if (!e.altKey) return;
-              if (e.key === "ArrowUp" && index > 0) {
+              const back = horizontal ? "ArrowLeft" : "ArrowUp";
+              const forward = horizontal ? "ArrowRight" : "ArrowDown";
+              if (e.key === back && index > 0) {
                 e.preventDefault();
                 move(index, index - 1);
-              } else if (e.key === "ArrowDown" && index < items.length - 1) {
+              } else if (e.key === forward && index < items.length - 1) {
                 e.preventDefault();
                 move(index, index + 1);
               }

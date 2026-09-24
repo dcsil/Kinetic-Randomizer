@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
+// Distinct tile hues; a group keeps its colour while being dragged around.
+const TILE_HUES = [276, 25, 150, 230, 330, 85, 190, 300, 55, 120];
+
 export default function Randomizer() {
   const { classroomId } = useParams();
   const { classrooms, groups, toggleReady, randomize, updatePresentation } = useApp();
@@ -71,20 +74,28 @@ export default function Randomizer() {
       {orderedIds.length > 0 && (
         <div className="order-result">
           <h2>Presentation order</h2>
-          <p className="field-hint">Drag groups to adjust the order manually.</p>
+          <p className="field-hint">Drag the tiles to adjust the order manually.</p>
           <DraggableList
             items={orderedIds}
             onReorder={handleReorder}
             label="Presentation order"
+            horizontal
+            className="order-tiles"
             getItemClassName={(id) =>
-              groups.find((g) => g.id === id)?.ready ? "" : "order-item-pending"
+              groups.find((g) => g.id === id)?.ready ? "order-tile" : "order-tile order-tile-pending"
             }
-            renderItem={(id, index) => (
-              <>
-                <span className="drag-index">{index + 1}.</span>
-                <span>{groups.find((g) => g.id === id)?.name}</span>
-              </>
-            )}
+            renderItem={(id, index) => {
+              const groupIndex = groups.findIndex((g) => g.id === id);
+              const group = groups[groupIndex];
+              const hue = TILE_HUES[groupIndex % TILE_HUES.length];
+              return (
+                <span className="order-tile-body" style={{ "--tile-hue": hue }}>
+                  <span className="order-tile-index">{index + 1}</span>
+                  <span className="order-tile-name">{group?.name}</span>
+                  {!group?.ready && <span className="order-tile-status">Not ready</span>}
+                </span>
+              );
+            }}
           />
           {error && <p className="form-error">{error}</p>}
           <button
