@@ -1203,7 +1203,7 @@ function ArchitectureChapter() {
             {i < ARCHITECTURE.length - 1 && (
               <span className="cx-arch-link" aria-hidden="true">
                 <span className="cx-arch-flow" />
-                <span className="cx-arch-proto">{i === 0 ? "HTTP · JSON" : "SQL"}</span>
+                <span className="cx-arch-proto">{i === 0 ? "HTTP" : "SQL"}</span>
               </span>
             )}
           </div>

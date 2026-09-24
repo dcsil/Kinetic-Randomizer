@@ -171,14 +171,14 @@ export const ARCHITECTURE = [
     id: "fe",
     label: "Frontend",
     logos: ["react"],
-    tech: "React · Vite · Router",
+    tech: "React · Vite",
     port: ":5173",
   },
   {
     id: "api",
     label: "REST API",
     logos: ["express"],
-    tech: "Express · JSON",
+    tech: "Express",
     port: ":3000",
   },
   {
