@@ -102,6 +102,123 @@
   font-size: 0.9rem;
 }
 
+.page-kicker {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.page-kicker a {
+  text-decoration: none;
+}
+
+.page-kicker a:hover {
+  text-decoration: underline;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.roster h2 {
+  font-size: 1.25rem;
+}
+
+.classroom-card {
+  align-items: stretch;
+}
+
+.classroom-open {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+
+.classroom-open:hover h3 {
+  color: var(--color-accent);
+}
+
+.topnav-classroom {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.field-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.group-form-fields-stack {
+  grid-template-columns: 1fr;
+}
+
+.student-picker {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.student-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.student-option:last-child {
+  border-bottom: none;
+}
+
+.student-option-taken {
+  color: var(--color-text-muted);
+}
+
+.student-taken {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.inline-add {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.live-members {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
 /* Groups */
 .group-list {
   display: flex;

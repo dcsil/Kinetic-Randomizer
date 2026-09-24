@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 export default function Login() {
   const [name, setName] = useState("");
-  const { login } = useApp();
+  const { instructor, login } = useApp();
   const navigate = useNavigate();
+
+  if (instructor) {
+    return <Navigate to="/classrooms" replace />;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim()) return;
     await login(name.trim());
-    navigate("/dashboard");
+    navigate("/classrooms");
   }
 
   return (

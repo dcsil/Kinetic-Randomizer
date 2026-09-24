@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 const PRESENTATION_SECONDS = 5 * 60;
@@ -14,8 +14,10 @@ function formatTime(totalSeconds) {
 }
 
 export default function PresentationLive() {
+  const { classroomId } = useParams();
   const { groups, order, currentIndex, nextGroup } = useApp();
   const navigate = useNavigate();
+  const groupsPath = `/classrooms/${classroomId}`;
 
   const [phase, setPhase] = useState("presenting"); // presenting | qa
   const [secondsLeft, setSecondsLeft] = useState(PRESENTATION_SECONDS);
@@ -33,11 +35,11 @@ export default function PresentationLive() {
 
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === "Escape") navigate("/dashboard");
+      if (e.key === "Escape") navigate(groupsPath);
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigate]);
+  }, [navigate, groupsPath]);
 
   if (!order || order.length === 0) {
     return (
@@ -71,7 +73,7 @@ export default function PresentationLive() {
     <div className="live-page">
       <button
         className="live-exit"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate(groupsPath)}
         aria-label="Exit presentation mode"
         title="Exit (Esc)"
       >
@@ -80,6 +82,9 @@ export default function PresentationLive() {
 
       <p className="live-phase">{phase === "presenting" ? "Presenting" : "Q&A"}</p>
       <h1 className="live-name">{currentGroup?.name}</h1>
+      {currentGroup?.members && (
+        <p className="live-members">{currentGroup.members}</p>
+      )}
 
       <div className={`live-timer ${isWarning ? "live-timer-warning" : ""} ${isDone ? "live-timer-done" : ""}`}>
         {formatTime(secondsLeft)}
@@ -96,7 +101,7 @@ export default function PresentationLive() {
         ) : (
           <button
             className="btn btn-primary"
-            onClick={isLast ? () => navigate("/dashboard") : goNext}
+            onClick={isLast ? () => navigate(groupsPath) : goNext}
           >
             {isLast ? "Finish session" : "Next group →"}
           </button>

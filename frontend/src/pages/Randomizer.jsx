@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 export default function Randomizer() {
-  const { groups, toggleReady, randomize } = useApp();
+  const { classroomId } = useParams();
+  const { classrooms, groups, toggleReady, randomize } = useApp();
   const [order, setOrderPreview] = useState(null);
   const navigate = useNavigate();
+  const classroom = classrooms.find((item) => item.id === classroomId);
 
   async function handleRandomize() {
     const newOrder = await randomize();
@@ -19,12 +21,16 @@ export default function Randomizer() {
     <div className="page">
       <div className="page-header">
         <div>
+          <p className="page-kicker">
+            <Link to="/classrooms">Classrooms</Link>
+            <span> / {classroom?.name || "Classroom"}</span>
+          </p>
           <h1>Randomizer</h1>
           <p className="page-sub">
-            Uncheck a group to push it to the end of the presentation order.
+            Uncheck a group to push it to the end of this classroom's presentation order.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleRandomize}>
+        <button className="btn btn-primary" onClick={handleRandomize} disabled={groups.length === 0}>
           Randomize order
         </button>
       </div>
@@ -43,6 +49,9 @@ export default function Randomizer() {
             </span>
           </label>
         ))}
+        {groups.length === 0 && (
+          <p className="empty-state">No groups in this classroom yet.</p>
+        )}
       </div>
 
       {orderedGroups && orderedGroups.length > 0 && (
@@ -57,7 +66,7 @@ export default function Randomizer() {
           </ol>
           <button
             className="btn btn-primary"
-            onClick={() => navigate("/live")}
+            onClick={() => navigate(`/classrooms/${classroomId}/live`)}
           >
             Start presentations &rarr;
           </button>
