@@ -2,17 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
-// Login is a stand-in: no backend exists yet, so this just gates the app
-// locally. Real auth is part of the Express API work in issue #1.
 export default function Login() {
   const [name, setName] = useState("");
   const { login } = useApp();
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim()) return;
-    login(name.trim());
+    await login(name.trim());
     navigate("/dashboard");
   }
 

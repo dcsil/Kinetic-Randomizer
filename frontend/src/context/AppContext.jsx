@@ -2,40 +2,49 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const AppContext = createContext(null);
 
-const SEED_GROUPS = [
-  { id: "g1", name: "Team Nimbus", members: "Ava, Priya, Sam", ready: true },
-  { id: "g2", name: "Group 4B", members: "Owen, Leah", ready: true },
-  { id: "g3", name: "The Refactorers", members: "Marcus, Dana, Wei, Ivy", ready: false },
-  { id: "g4", name: "Pixel Pioneers", members: "Noor, Theo", ready: true },
-];
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-// NOTE: everything here is local/mock state. There is no backend yet -
-// see GitHub issue #1 for the Express API this will eventually call.
+async function api(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json", ...options.headers },
+    ...options,
+  });
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
 export function AppProvider({ children }) {
   const [instructor, setInstructor] = useState(
     () => localStorage.getItem("kr_instructor") || ""
   );
-  const [groups, setGroups] = useState(() => {
-    const saved = localStorage.getItem("kr_groups");
-    return saved ? JSON.parse(saved) : SEED_GROUPS;
-  });
-  const [order, setOrder] = useState(() => {
-    const saved = localStorage.getItem("kr_order");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [groups, setGroups] = useState([]);
+  const [order, setOrder] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    localStorage.setItem("kr_groups", JSON.stringify(groups));
-  }, [groups]);
+    async function load() {
+      const [loadedGroups, presentation] = await Promise.all([
+        api("/api/groups"),
+        api("/api/presentation/current"),
+      ]);
+      setGroups(loadedGroups);
+      setOrder(presentation.order);
+      setCurrentIndex(presentation.currentIndex);
+    }
+    load();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("kr_order", JSON.stringify(order));
-  }, [order]);
-
-  function login(name) {
-    localStorage.setItem("kr_instructor", name);
-    setInstructor(name);
+  async function login(name) {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+    localStorage.setItem("kr_instructor", data.instructor);
+    setInstructor(data.instructor);
   }
 
   function logout() {
@@ -43,41 +52,44 @@ export function AppProvider({ children }) {
     setInstructor("");
   }
 
-  function addGroup(group) {
-    setGroups((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), ready: true, ...group },
-    ]);
+  async function addGroup(group) {
+    const created = await api("/api/groups", {
+      method: "POST",
+      body: JSON.stringify(group),
+    });
+    setGroups((prev) => [...prev, created]);
   }
 
-  function updateGroup(id, updates) {
-    setGroups((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, ...updates } : g))
-    );
+  async function updateGroup(id, updates) {
+    const updated = await api(`/api/groups/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
+    setGroups((prev) => prev.map((g) => (g.id === id ? updated : g)));
   }
 
-  function deleteGroup(id) {
+  async function deleteGroup(id) {
+    await api(`/api/groups/${id}`, { method: "DELETE" });
     setGroups((prev) => prev.filter((g) => g.id !== id));
   }
 
-  function toggleReady(id) {
-    setGroups((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, ready: !g.ready } : g))
-    );
+  async function toggleReady(id) {
+    const group = groups.find((g) => g.id === id);
+    if (!group) return;
+    await updateGroup(id, { ready: !group.ready });
   }
 
-  function randomize() {
-    const ready = groups.filter((g) => g.ready);
-    const notReady = groups.filter((g) => !g.ready);
-    const shuffled = [...ready].sort(() => Math.random() - 0.5);
-    const newOrder = [...shuffled, ...notReady].map((g) => g.id);
-    setOrder(newOrder);
+  async function randomize() {
+    const data = await api("/api/randomizer/order", { method: "POST" });
+    setOrder(data.order);
     setCurrentIndex(0);
-    return newOrder;
+    return data.order;
   }
 
-  function nextGroup() {
-    setCurrentIndex((i) => Math.min(i + 1, order.length - 1));
+  async function nextGroup() {
+    const data = await api("/api/presentation/next", { method: "POST" });
+    setOrder(data.order);
+    setCurrentIndex(data.currentIndex);
   }
 
   return (
