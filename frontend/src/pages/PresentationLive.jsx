@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
 const PRESENTATION_SECONDS = 7 * 60;
@@ -15,7 +16,7 @@ function formatTime(totalSeconds) {
 
 export default function PresentationLive() {
   const { classroomId } = useParams();
-  const { groups, order, currentIndex, nextGroup } = useApp();
+  const { groups, order, currentIndex, nextGroup, updatePresentation } = useApp();
   const navigate = useNavigate();
   const groupsPath = `/classrooms/${classroomId}`;
 
@@ -62,11 +63,32 @@ export default function PresentationLive() {
     setRunning(true);
   }
 
-  function goNext() {
-    nextGroup();
+  function resetTimer() {
     setPhase("presenting");
     setSecondsLeft(PRESENTATION_SECONDS);
     setRunning(false);
+  }
+
+  function goNext() {
+    nextGroup();
+    resetTimer();
+  }
+
+  const currentId = order[currentIndex];
+  const listedIds = order.filter((id) => groups.some((g) => g.id === id));
+
+  async function jumpTo(id) {
+    if (id === currentId) return;
+    await updatePresentation({ currentIndex: order.indexOf(id) });
+    resetTimer();
+  }
+
+  async function reorder(nextOrder) {
+    const nextIndex = nextOrder.indexOf(currentId);
+    await updatePresentation({
+      order: nextOrder,
+      currentIndex: nextIndex === -1 ? Math.min(currentIndex, nextOrder.length - 1) : nextIndex,
+    });
   }
 
   return (
@@ -79,6 +101,38 @@ export default function PresentationLive() {
       >
         Exit
       </button>
+
+      <aside className="live-order">
+        <p className="live-order-title">Order</p>
+        <DraggableList
+          items={listedIds}
+          onReorder={reorder}
+          label="Presentation order"
+          getItemClassName={(id) => {
+            const index = order.indexOf(id);
+            if (index === currentIndex) return "live-order-current";
+            if (index < currentIndex) return "live-order-done";
+            return "";
+          }}
+          renderItem={(id) => (
+            <span
+              className="live-order-name"
+              role="button"
+              tabIndex={0}
+              aria-current={id === currentId ? "true" : undefined}
+              onClick={() => jumpTo(id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  jumpTo(id);
+                }
+              }}
+            >
+              {groups.find((g) => g.id === id)?.name}
+            </span>
+          )}
+        />
+      </aside>
 
       <p className="live-phase">{phase === "presenting" ? "Presenting" : "Q&A"}</p>
       <h1 className="live-name">{currentGroup?.name}</h1>
