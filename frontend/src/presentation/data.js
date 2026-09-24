@@ -15,7 +15,7 @@ export const TEAM = {
 
 // From framework.md: persona and value-driven goal.
 export const PERSONA = {
-  title: "Instructor running a presentation block",
+  title: "Professor running a presentation block",
   summary: "7 groups presenting in one class block, on a laptop at the front of the room.",
   traits: ["Can't lose track of who's next", "Can't lose track of time left"],
   goal: "Randomly order the teams, track presentation + Q&A time, and keep the session moving — without looking anything up.",
