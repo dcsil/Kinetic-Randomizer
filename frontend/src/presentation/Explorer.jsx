@@ -1396,7 +1396,7 @@ function ThanksChapter({ timer }) {
 // the code but are skipped in the deck.
 const ALL_CHAPTERS = [
   { id: "title", label: "Intro" },
-  { id: "persona", label: "Problem" },
+  { id: "persona", label: "User Goal and Persona" },
   { id: "architecture", label: "Our MVP Architecture" },
   { id: "demo", label: "Live demo" },
   { id: "journey", label: "Happy → unhappy path" },
