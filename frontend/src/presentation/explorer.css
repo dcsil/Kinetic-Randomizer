@@ -2482,3 +2482,9 @@ button.cx-stat:hover {
 .cx-thanks-q {
   margin: 0;
 }
+
+/* Secondary (student) CUJ line is slightly smaller */
+.cx-story-text + .cx-story-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
