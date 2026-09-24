@@ -315,11 +315,6 @@ function PersonaChapter() {
           </div>
         </div>
         <p className="cx-lead">{PERSONA.summary}</p>
-        <ul className="cx-list">
-          {PERSONA.traits.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
       </div>
       <div className="cx-stack">
         <div className="cx-card cx-card-accent">
