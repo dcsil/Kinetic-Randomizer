@@ -327,8 +327,12 @@ function PersonaChapter() {
       </div>
     </div>
     <div className="cx-card cx-story">
-      <p className="cx-kicker">CUJ</p>
-      <p className="cx-story-text">{PERSONA.story}</p>
+      <p className="cx-kicker">CUJ boundary</p>
+      {PERSONA.stories.map((story) => (
+        <p key={story} className="cx-story-text">
+          {story}
+        </p>
+      ))}
     </div>
     </div>
   );

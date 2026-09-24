@@ -2453,3 +2453,7 @@ button.cx-stat:hover {
 .cx-combined .cx-rec strong {
   font-size: 0.95rem;
 }
+
+.cx-story-text + .cx-story-text {
+  margin-top: 0.75rem;
+}
