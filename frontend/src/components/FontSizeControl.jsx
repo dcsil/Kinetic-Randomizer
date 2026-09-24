@@ -52,6 +52,16 @@ export default function FontSizeControl() {
       >
         +
       </button>
+      <button
+        type="button"
+        className="font-size-btn"
+        onClick={() => setStep(DEFAULT_STEP)}
+        disabled={step === DEFAULT_STEP}
+        aria-label="Reset text size to default"
+        title="Reset text size to default"
+      >
+        ↺
+      </button>
     </div>
   );
 }
