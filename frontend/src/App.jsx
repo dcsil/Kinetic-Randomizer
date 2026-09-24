@@ -96,6 +96,7 @@ function Shell({ children }) {
         </nav>
       )}
       <main className="main">{children}</main>
+      <footer className="site-footer">Kinetic — Built by Azaria and Richard</footer>
     </>
   );
 }

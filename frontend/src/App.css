@@ -114,6 +114,14 @@
   flex-direction: column;
 }
 
+.site-footer {
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
 .page {
   max-width: 720px;
   width: 100%;
