@@ -237,7 +237,7 @@ function FindingModalBody({ finding, onShowStep, onReproduce }) {
       )}
 
       <div className="cx-modal-actions">
-        {onShowStep && (
+        {onShowStep && finding.steps.length > 0 && (
           <button type="button" className="cx-btn" onClick={() => onShowStep(finding.steps[0])}>
             Show on journey
           </button>

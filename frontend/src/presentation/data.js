@@ -126,6 +126,12 @@ export const FINDINGS = [
     steps: [4],
   },
   {
+    id: "textsize",
+    severity: "great",
+    title: "Text can be resized so it's easy for everyone to see",
+    steps: [],
+  },
+  {
     id: "clicks",
     severity: "moderate",
     title: "Too many clicks before presentation",
