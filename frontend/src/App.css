@@ -296,7 +296,7 @@
 .live-members {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: 1.35rem;
 }
 
 /* Groups */
@@ -677,19 +677,20 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.85rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .live-name {
-  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  line-height: 1.1;
   margin: 0;
 }
 
 .live-timer {
   font-family: var(--font-mono);
-  font-size: clamp(3rem, 12vw, 7rem);
+  font-size: clamp(5rem, 17vw, 12rem);
   font-weight: 700;
   line-height: 1;
   color: var(--color-text);
@@ -710,11 +711,16 @@
   margin-top: var(--space-3);
 }
 
+.live-controls .btn {
+  font-size: 1.25rem;
+  padding: var(--space-3) var(--space-5);
+}
+
 .live-progress {
   margin: var(--space-2) 0 0;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 1.15rem;
 }
 
 @media (max-width: 640px) {
