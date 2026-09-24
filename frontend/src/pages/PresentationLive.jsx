@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
-const PRESENTATION_SECONDS = 5 * 60;
+const PRESENTATION_SECONDS = 7 * 60;
 const QA_SECONDS = 3 * 60;
 const WARNING_SECONDS = 2 * 60;
 
