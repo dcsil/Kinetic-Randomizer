@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
@@ -8,11 +8,10 @@ const TILE_HUES = [276, 25, 150, 230, 330, 85, 190, 300, 55, 120];
 
 export default function Randomizer() {
   const { classroomId } = useParams();
-  const { classrooms, groups, toggleReady, randomize, updatePresentation } = useApp();
+  const { groups, toggleReady, randomize, updatePresentation } = useApp();
   const [order, setOrderPreview] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const classroom = classrooms.find((item) => item.id === classroomId);
 
   async function handleRandomize() {
     setError("");
@@ -38,10 +37,6 @@ export default function Randomizer() {
     <div className="page">
       <div className="page-header">
         <div>
-          <p className="page-kicker">
-            <Link to="/classrooms">Classrooms</Link>
-            <span> / {classroom?.name || "Classroom"}</span>
-          </p>
           <h1>Randomizer</h1>
           <p className="page-sub">
             Uncheck a group to push it to the end of this classroom's presentation order.
