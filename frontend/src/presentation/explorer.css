@@ -2529,3 +2529,34 @@ button.cx-stat:hover {
 .cx-arch .cx-list {
   font-size: 1.12rem;
 }
+
+/* Large pop-up with the live app (slide 7) */
+.cx-modal.cx-modal-app {
+  width: min(96vw, 1500px);
+  height: 88vh;
+  max-height: 88vh;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow: hidden;
+}
+
+.cx-app-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-right: 2.6rem;
+}
+
+.cx-app-head .cx-kicker {
+  margin: 0;
+}
+
+.cx-app-frame {
+  flex: 1;
+  width: 100%;
+  border: 1px solid var(--cx-border);
+  border-radius: 10px;
+  background: white;
+}

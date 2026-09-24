@@ -142,7 +142,7 @@ function SeverityPill({ severity }) {
   return <span className={`cx-pill cx-sev-${severity}`}>{SEVERITY_LABEL[severity]}</span>;
 }
 
-function Modal({ onClose, children, wide }) {
+function Modal({ onClose, children, wide, className = "" }) {
   const closeRef = useRef(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => {
@@ -159,7 +159,7 @@ function Modal({ onClose, children, wide }) {
   return (
     <div className="cx-modal-backdrop" onMouseDown={onClose}>
       <div
-        className={`cx-modal ${wide ? "cx-modal-wide" : ""}`}
+        className={`cx-modal ${wide ? "cx-modal-wide" : ""} ${className}`}
         role="dialog"
         aria-modal="true"
         onMouseDown={(e) => e.stopPropagation()}
@@ -1338,20 +1338,46 @@ function TeamChapter() {
 }
 
 function ThanksChapter({ timer }) {
+  const [appOpen, setAppOpen] = useState(false);
   return (
     <div className="cx-title">
       <h1 className="cx-hero">
-        <span className="cx-hero-brand">Thank you for listening</span>
+        <span className="cx-hero-brand">Thank you for listening :)</span>
       </h1>
       <div className="cx-thanks-actions">
         {/* Restarts the presenter timer as a 3:00 Q&A countdown. */}
         <button type="button" className="cx-btn cx-btn-primary" onClick={timer.startQA}>
           Start Q&amp;A timer
         </button>
-        <a className="cx-btn" href="/classrooms" target="_blank" rel="noreferrer">
-          Try Randomizer ↗
-        </a>
+        <button type="button" className="cx-btn" onClick={() => setAppOpen(true)}>
+          Try Randomizer
+        </button>
       </div>
+      {appOpen && (
+        <Modal onClose={() => setAppOpen(false)} className="cx-modal-app">
+          <div className="cx-app-head">
+            <span className="cx-kicker">Try the Randomizer</span>
+            <a className="cx-chip-btn" href="/classrooms" target="_blank" rel="noreferrer">
+              Open in new tab ↗
+            </a>
+          </div>
+          <iframe
+            className="cx-app-frame"
+            src="/classrooms"
+            title="Kinetic Randomizer"
+            onLoad={(e) => {
+              // Esc inside the app also closes the pop-up.
+              try {
+                e.currentTarget.contentWindow.addEventListener("keydown", (ev) => {
+                  if (ev.key === "Escape") setAppOpen(false);
+                });
+              } catch {
+                // not same-origin
+              }
+            }}
+          />
+        </Modal>
+      )}
       <p className="cx-hero-sub cx-thanks-q">Questions?</p>
     </div>
   );
