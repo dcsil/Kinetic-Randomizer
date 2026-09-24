@@ -2488,3 +2488,10 @@ button.cx-stat:hover {
   font-size: 1.2rem;
   font-weight: 500;
 }
+
+.cx-thanks-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}

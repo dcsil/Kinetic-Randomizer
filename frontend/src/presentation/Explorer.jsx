@@ -1351,18 +1351,15 @@ function ThanksChapter({ timer }) {
       <h1 className="cx-hero">
         <span className="cx-hero-brand">Thank you for listening</span>
       </h1>
-      {/* Opens the live app for Q&A in a new tab and starts the Q&A countdown. */}
-      <a
-        className="cx-btn cx-btn-primary"
-        href="/classrooms"
-        target="_blank"
-        rel="noreferrer"
-        onClick={() => {
-          if (timer.phase === "talk") timer.startQA();
-        }}
-      >
-        Start Q&amp;A timer
-      </a>
+      <div className="cx-thanks-actions">
+        {/* Restarts the presenter timer as a 3:00 Q&A countdown. */}
+        <button type="button" className="cx-btn cx-btn-primary" onClick={timer.startQA}>
+          Start Q&amp;A timer
+        </button>
+        <a className="cx-btn" href="/classrooms" target="_blank" rel="noreferrer">
+          Try Randomizer ↗
+        </a>
+      </div>
       <p className="cx-hero-sub cx-thanks-q">Questions?</p>
     </div>
   );
