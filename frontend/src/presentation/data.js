@@ -122,8 +122,7 @@ export const FINDINGS = [
   {
     id: "order",
     severity: "great",
-    title: "Not-ready groups clearly go last",
-    detail: "Order readable at a glance.",
+    title: "Not-ready groups can be placed last",
     steps: [4],
   },
   {
