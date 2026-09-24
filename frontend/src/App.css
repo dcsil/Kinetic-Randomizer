@@ -290,7 +290,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-3);
 }
 
 .live-members {
@@ -680,7 +680,7 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 1.4rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--color-text-muted);
 }
@@ -715,8 +715,8 @@
 }
 
 .live-controls .btn {
-  font-size: 1.25rem;
-  padding: var(--space-3) var(--space-5);
+  font-size: 1.6rem;
+  padding: var(--space-4) var(--space-6);
 }
 
 .live-progress {
