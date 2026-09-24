@@ -315,7 +315,6 @@ function PersonaChapter() {
             <h2>{PERSONA.title}</h2>
           </div>
         </div>
-        <p className="cx-lead">{PERSONA.summary}</p>
       </div>
       <div className="cx-stack">
         <div className="cx-card cx-card-accent">
