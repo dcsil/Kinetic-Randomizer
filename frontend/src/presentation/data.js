@@ -174,7 +174,7 @@ export const ARCHITECTURE = [
     port: ":5173",
     tradeoffs: [
       "Local: no dealing with the cloud.",
-      "Can't share work — it only runs on this machine.",
+      "Can't share work since it only runs on this machine.",
     ],
   },
   {
@@ -183,7 +183,7 @@ export const ARCHITECTURE = [
     tech: "Express · JSON",
     port: ":3000",
     tradeoffs: [
-      "Requires local setup — install and run both servers.",
+      "Requires local setup to install and run both servers.",
       "Local auth: name-only sign-in, no SSO.",
     ],
   },
@@ -192,7 +192,7 @@ export const ARCHITECTURE = [
     label: "Database",
     tech: "SQLite",
     port: "data.sqlite",
-    tradeoffs: ["No hosted database — data isn't stored anywhere beyond this laptop."],
+    tradeoffs: ["No hosted database, so data isn't stored anywhere beyond this laptop."],
   },
 ];
 
