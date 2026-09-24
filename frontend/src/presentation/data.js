@@ -6,7 +6,7 @@ const IMG = "/presentation";
 
 export const TEAM = {
   name: "Kinetic",
-  product: "Kinetic Randomizer",
+  product: "Presentation Randomizer",
   members: [
     { name: "Azaria Kelman", role: "Frontend", photo: `${IMG}/azaria.jpg` },
     { name: "Richard Xu", role: "Backend", photo: `${IMG}/richard.jpg` },

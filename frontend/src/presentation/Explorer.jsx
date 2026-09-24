@@ -262,6 +262,7 @@ function TitleChapter({ go }) {
     <div className="cx-title">
       <h1 className="cx-hero">
         <span className="cx-hero-brand">{TEAM.product}</span>
+        <span className="cx-hero-sub">By {TEAM.name}</span>
       </h1>
       <div className="cx-members">
         {TEAM.members.map((m) => (
