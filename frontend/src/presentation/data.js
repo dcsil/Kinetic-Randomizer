@@ -172,7 +172,7 @@ export const ARCHITECTURE = [
   {
     id: "fe",
     label: "Frontend",
-    logos: ["react", "vite"],
+    logos: ["react"],
     tech: "React · Vite · Router",
     port: ":5173",
   },
