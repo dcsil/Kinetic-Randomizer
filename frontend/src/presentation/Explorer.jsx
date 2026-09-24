@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./explorer.css";
+import { LOGOS } from "./logos";
 import {
   ARCHITECTURE,
   ENDPOINTS,
@@ -1205,7 +1206,20 @@ function ArchitectureChapter() {
               className={`cx-arch-node ${active === n.id ? "is-active" : ""}`}
               onClick={() => setActive(n.id)}
             >
-              <span className="cx-arch-label">{n.label}</span>
+              <span className="cx-arch-label">
+                {n.logos.map((key) => (
+                  <svg
+                    key={key}
+                    className="cx-logo-icon"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-label={LOGOS[key].title}
+                  >
+                    <path d={LOGOS[key].path} fill={LOGOS[key].color} />
+                  </svg>
+                ))}
+                {n.label}
+              </span>
               <span className="cx-arch-tech">{n.tech}</span>
               <span className="cx-arch-port">{n.port}</span>
             </button>

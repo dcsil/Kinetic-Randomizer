@@ -172,18 +172,21 @@ export const ARCHITECTURE = [
   {
     id: "fe",
     label: "Frontend",
+    logos: ["react", "vite"],
     tech: "React · Vite · Router",
     port: ":5173",
   },
   {
     id: "api",
     label: "REST API",
+    logos: ["express"],
     tech: "Express · JSON",
     port: ":3000",
   },
   {
     id: "db",
     label: "Database",
+    logos: ["sqlite"],
     tech: "SQLite",
     port: "data.sqlite",
   },

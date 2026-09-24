@@ -2495,3 +2495,16 @@ button.cx-stat:hover {
   justify-content: center;
   gap: 0.75rem;
 }
+
+/* Stack logos in the architecture node headers */
+.cx-arch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cx-logo-icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+}
