@@ -225,6 +225,16 @@ export function AppProvider({ children }) {
     return data.order;
   }
 
+  async function updatePresentation(updates) {
+    const data = await api(`/api/classrooms/${classroomId}/presentation/current`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
+    setOrder(data.order);
+    setCurrentIndex(data.currentIndex);
+    return data;
+  }
+
   async function nextGroup() {
     const data = await api(`/api/classrooms/${classroomId}/presentation/next`, {
       method: "POST",
@@ -259,6 +269,7 @@ export function AppProvider({ children }) {
         order,
         currentIndex,
         randomize,
+        updatePresentation,
         nextGroup,
       }}
     >
