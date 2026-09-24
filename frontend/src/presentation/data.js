@@ -128,7 +128,7 @@ export const FINDINGS = [
   {
     id: "clicks",
     severity: "moderate",
-    title: "Not zero-click: many clicks before the first talk",
+    title: "Not zero-click: many clicks before the first presentation",
     detail: "~6 clicks plus typing before anyone presents — setup pulls attention from the room.",
     steps: [1, 2, 3, 4, 5, 7],
     timeLost: "Setup time before every session",

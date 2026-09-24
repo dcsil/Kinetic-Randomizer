@@ -1178,7 +1178,6 @@ function ArchitectureChapter({ onReproduce }) {
   const [health, setHealth] = useState({ state: "checking" });
   const [result, setResult] = useState(null);
   const [classroomId, setClassroomId] = useState(null);
-  const node = ARCHITECTURE.find((n) => n.id === active);
 
   useEffect(() => {
     const t0 = performance.now();
@@ -1231,10 +1230,10 @@ function ArchitectureChapter({ onReproduce }) {
       </div>
 
       <div className="cx-grid-2">
-        <div className="cx-card" key={node.id}>
-          <p className="cx-kicker">Trade-offs · {node.label}</p>
+        <div className="cx-card">
+          <p className="cx-kicker">Trade-offs</p>
           <ul className="cx-list">
-            {node.tradeoffs.map((w) => (
+            {ARCHITECTURE.flatMap((n) => n.tradeoffs).map((w) => (
               <li key={w}>{w}</li>
             ))}
           </ul>
