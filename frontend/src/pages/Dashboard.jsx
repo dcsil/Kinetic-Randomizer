@@ -4,22 +4,16 @@ import { useApp } from "../context/AppContext";
 
 export default function Dashboard() {
   const { classroomId } = useParams();
-  const { classrooms, groups, students, addGroup, updateGroup, deleteGroup, addStudent } =
+  const { groups, students, addGroup, updateGroup, deleteGroup, addStudent } =
     useApp();
   const [editingId, setEditingId] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [error, setError] = useState("");
 
-  const classroom = classrooms.find((item) => item.id === classroomId);
-
   return (
     <div className="page">
       <div className="page-header">
         <div>
-          <p className="page-kicker">
-            <Link to="/classrooms">Classrooms</Link>
-            <span> / {classroom?.name || "Classroom"}</span>
-          </p>
           <h1>Groups</h1>
           <p className="page-sub">
             {groups.length} {groups.length === 1 ? "group" : "groups"} in this
