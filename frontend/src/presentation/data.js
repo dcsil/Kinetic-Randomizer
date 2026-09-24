@@ -17,7 +17,7 @@ export const TEAM = {
 export const PERSONA = {
   title: "Instructor running a presentation block",
   summary: "7 groups presenting in one class block, on a laptop at the front of the room.",
-  traits: ["Not technical", "Can't lose track of who's next", "Can't lose track of time left"],
+  traits: ["Can't lose track of who's next", "Can't lose track of time left"],
   goal: "Randomly order the teams, track presentation + Q&A time, and keep the session moving — without looking anything up.",
   stories: [
     "As a Professor, when I want to oversee course presentations, I want to randomly select groups so I can ensure a fair selection process.",

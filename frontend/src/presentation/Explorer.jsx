@@ -1171,13 +1171,7 @@ function LiveRun({ run, auto, compare, paused, onAuto, onStop, onTogglePause, on
   );
 }
 
-const CORE_FEATURES = [
-  ["randomizer", "Randomizer"],
-  ["groups", "Dashboard"],
-  ["live", "Dual-phase timer"],
-];
-
-function ArchitectureChapter({ onReproduce }) {
+function ArchitectureChapter() {
   const [active, setActive] = useState("api");
   const [health, setHealth] = useState({ state: "checking" });
   const [result, setResult] = useState(null);
@@ -1202,15 +1196,6 @@ function ArchitectureChapter({ onReproduce }) {
 
   return (
     <div className="cx-arch">
-      <div className="cx-features">
-        {CORE_FEATURES.map(([key, label]) => (
-          <button key={key} type="button" className="cx-feature" onClick={() => onReproduce(key)}>
-            <span className="cx-feature-check" aria-hidden="true">✓</span>
-            {label}
-            <span className="cx-muted cx-small">open live →</span>
-          </button>
-        ))}
-      </div>
       <div className="cx-arch-diagram">
         {ARCHITECTURE.map((n, i) => (
           <div className="cx-arch-cell" key={n.id}>
@@ -1364,33 +1349,20 @@ function ThanksChapter({ timer }) {
     <div className="cx-title">
       <h1 className="cx-hero">
         <span className="cx-hero-brand">Thank you for listening</span>
-        <span className="cx-hero-sub">Questions?</span>
       </h1>
-      <div className="cx-members">
-        {TEAM.members.map((m) => (
-          <div className="cx-member" key={m.name}>
-            {m.photo ? (
-              <img className="cx-avatar cx-avatar-photo" src={m.photo} alt="" />
-            ) : (
-              <span className="cx-avatar" aria-hidden="true">
-                {m.name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .join("")}
-              </span>
-            )}
-            <span>
-              <strong>{m.name}</strong>
-              <span className="cx-muted cx-small">{m.role}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-      {timer.phase === "talk" && (
-        <button type="button" className="cx-btn cx-btn-primary" onClick={timer.startQA}>
-          Start Q&amp;A timer
-        </button>
-      )}
+      {/* Opens the live app for Q&A in a new tab and starts the Q&A countdown. */}
+      <a
+        className="cx-btn cx-btn-primary"
+        href="/classrooms"
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => {
+          if (timer.phase === "talk") timer.startQA();
+        }}
+      >
+        Start Q&amp;A timer
+      </a>
+      <p className="cx-hero-sub cx-thanks-q">Questions?</p>
     </div>
   );
 }
@@ -1524,7 +1496,7 @@ export default function Explorer() {
       case "demo":
         return <DemoChapter demoTarget={demoTarget} />;
       case "architecture":
-        return <ArchitectureChapter onReproduce={reproduce} />;
+        return <ArchitectureChapter />;
       case "iteration":
         return <IterationChapter openFinding={openFinding} />;
       case "team":
@@ -1532,7 +1504,7 @@ export default function Explorer() {
       default:
         return <ThanksChapter timer={timer} />;
     }
-  }, [chapter.id, go, selectedStep, openFinding, reproduce, demoTarget, timer, journeyView]);
+  }, [chapter.id, go, selectedStep, openFinding, demoTarget, timer, journeyView]);
 
   return (
     <div

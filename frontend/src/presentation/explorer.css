@@ -2474,3 +2474,11 @@ button.cx-stat:hover {
 .cx-list .cx-tradeoff-con::marker {
   color: var(--cx-severe);
 }
+
+.cx-root a.cx-btn {
+  text-decoration: none;
+}
+
+.cx-thanks-q {
+  margin: 0;
+}
