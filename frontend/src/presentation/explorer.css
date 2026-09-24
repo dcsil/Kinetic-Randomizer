@@ -2508,3 +2508,24 @@ button.cx-stat:hover {
   height: 1.15em;
   flex-shrink: 0;
 }
+
+.cx-arch-port-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.3rem;
+}
+
+.cx-arch-port-row .cx-arch-port {
+  margin-top: 0;
+}
+
+.cx-arch-port-row .cx-logo-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+/* Slide 3 trade-offs: a bit larger */
+.cx-arch .cx-list {
+  font-size: 1.12rem;
+}

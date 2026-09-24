@@ -1206,7 +1206,9 @@ function ArchitectureChapter() {
               className={`cx-arch-node ${active === n.id ? "is-active" : ""}`}
               onClick={() => setActive(n.id)}
             >
-              <span className="cx-arch-label">
+              <span className="cx-arch-label">{n.label}</span>
+              <span className="cx-arch-tech">{n.tech}</span>
+              <span className="cx-arch-port-row">
                 {n.logos.map((key) => (
                   <svg
                     key={key}
@@ -1218,10 +1220,8 @@ function ArchitectureChapter() {
                     <path d={LOGOS[key].path} fill={LOGOS[key].color} />
                   </svg>
                 ))}
-                {n.label}
+                <span className="cx-arch-port">{n.port}</span>
               </span>
-              <span className="cx-arch-tech">{n.tech}</span>
-              <span className="cx-arch-port">{n.port}</span>
             </button>
             {i < ARCHITECTURE.length - 1 && (
               <span className="cx-arch-link" aria-hidden="true">
