@@ -29,12 +29,47 @@
   font-size: 0.9rem;
 }
 
+/* Text size control (fixed, top right on every page) */
+.font-size-control {
+  position: fixed;
+  top: var(--space-3);
+  right: var(--space-4);
+  z-index: 100;
+  display: flex;
+  gap: var(--space-1);
+}
+
+.font-size-btn {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.font-size-btn:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.font-size-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 /* Top nav */
 .topnav {
   display: flex;
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-3) var(--space-6);
+  /* leave room for the fixed text size control */
+  padding-right: calc(var(--space-4) + 4.25rem + var(--space-5));
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
 }

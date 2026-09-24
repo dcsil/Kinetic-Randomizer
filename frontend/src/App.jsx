@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router-dom";
 import "./App.css";
+import FontSizeControl from "./components/FontSizeControl";
 import { AppProvider, useApp } from "./context/AppContext";
 import Login from "./pages/Login";
 import Classrooms from "./pages/Classrooms";
@@ -63,6 +64,7 @@ function Shell({ children }) {
 
   return (
     <>
+      <FontSizeControl />
       {!hideNav && instructor && (
         <nav className="topnav">
           <span className="topnav-brand">Kinetic Randomizer</span>
