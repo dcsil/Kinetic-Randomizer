@@ -177,15 +177,6 @@ export const SECRET_FACTS = [
   { k: "If leaked", v: "Revoke → regenerate → re-tag" },
 ];
 
-export const APP_SECURITY = [
-  "bcrypt passwords",
-  "12h JWT",
-  "Login rate limit",
-  "CORS allowlist",
-  "Per-instructor data",
-  "Private database",
-];
-
 // Slide 8: A2 feedback → what A3 did about it. status: shipped | open
 export const FEEDBACK = [
   { issue: "Demo only ran on our laptop", response: "Public URL", status: "shipped" },
@@ -204,7 +195,5 @@ export const ROADMAP = [
   { area: "Compute", now: "Free tier", trigger: "Cold starts", next: "Always-on", why: "No wake-up delay when class starts" },
   { area: "Data", now: "Free Postgres", trigger: "Semester of data", next: "Backups", why: "Can't lose a term's groups" },
   { area: "Identity", now: "JWT login", trigger: "Dept. adoption", next: "UofT SSO", why: "Profs already have a UTORid" },
-  { area: "Delivery", now: "Tag → prod", trigger: "More devs", next: "Staging", why: "Test a release before students see it" },
   { area: "Real-time", now: "One browser", trigger: "Many screens", next: "WebSockets", why: "Timer stays in sync everywhere" },
-  { area: "Ops", now: "/healthz", trigger: "Wider use", next: "Alerts", why: "Know it's down before a class does" },
 ];

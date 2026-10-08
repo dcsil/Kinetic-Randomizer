@@ -4,7 +4,6 @@ import "../presentation/explorer.css";
 import "./deck-a3.css";
 import { LOGOS } from "./logos";
 import {
-  APP_SECURITY,
   AUDIT,
   CLOUD_CHOICE,
   CLOUD_NOTES,
@@ -567,11 +566,6 @@ function SecurityChapter() {
           <Facts items={SECRET_FACTS} />
         </div>
       </div>
-      <ul className="a3-tags">
-        {APP_SECURITY.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
     </div>
   );
 }
