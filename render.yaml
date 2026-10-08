@@ -1,0 +1,30 @@
+databases:
+  - name: kinetic-db
+    plan: free
+    region: oregon
+    databaseName: kinetic
+    user: kinetic
+    ipAllowList: []
+
+services:
+  - type: web
+    name: kinetic-randomizer-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kinetic-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
