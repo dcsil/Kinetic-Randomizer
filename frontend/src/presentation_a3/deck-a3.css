@@ -167,58 +167,35 @@
 .a3-evo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .a3-evo-card {
-  padding: 0.9rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 14.5rem;
+  padding: 1.5rem 1.9rem;
+}
+
+.a3-evo-card .cx-kicker {
+  font-size: 1.05rem;
+  margin-bottom: 0.7rem;
 }
 
 .a3-evo-before {
   margin: 0;
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   color: var(--cx-muted);
   text-decoration: line-through;
 }
 
 .a3-evo-after {
-  margin: 0.15rem 0 0;
-  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.7rem, 2.9vw, 2.35rem);
   font-weight: 700;
   line-height: 1.2;
-}
-
-.a3-cuj {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1.25rem;
-  padding: 1rem 1.3rem;
-  border: 1px solid color-mix(in oklch, var(--cx-accent) 30%, transparent);
-  border-radius: var(--cx-radius);
-  background: oklch(96.5% 0.02 276);
-}
-
-.a3-cuj .cx-kicker {
-  margin: 0;
-  white-space: nowrap;
-}
-
-.a3-cuj-steps {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.a3-cuj-steps li:not(:last-child)::after {
-  content: "→";
-  margin-left: 0.5rem;
-  color: var(--cx-accent);
+  letter-spacing: -0.01em;
 }
 
 /* ---------- Why Render + Vercel ---------- */
@@ -809,4 +786,16 @@
 .a3-root .a3-detail-grid p {
   font-size: 0.82rem;
   line-height: 1.4;
+}
+
+/* Spelled-out acronyms on the cloud slide: small, muted, readable aloud. */
+.a3-expand {
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--cx-muted);
+}
+
+.a3-expand-block {
+  display: block;
+  margin: 0 0 0.5rem;
 }

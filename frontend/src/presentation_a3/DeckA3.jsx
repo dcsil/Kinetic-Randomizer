@@ -8,7 +8,6 @@ import {
   AUDIT,
   CLOUD_CHOICE,
   CLOUD_NOTES,
-  CUJ,
   EVOLUTION,
   FEEDBACK,
   GUARDRAILS,
@@ -155,6 +154,7 @@ function Facts({ items }) {
       {items.map((f) => (
         <p key={f.k}>
           <span className="cx-kicker">{f.k}</span>
+          {f.x && <span className="a3-expand a3-expand-block">{f.x}</span>}
           {f.v}
         </p>
       ))}
@@ -232,24 +232,14 @@ function PromoChapter() {
 
 function EvolutionChapter() {
   return (
-    <div className="cx-stack">
-      <div className="a3-evo-grid">
-        {EVOLUTION.map((r) => (
-          <div className="cx-card a3-evo-card" key={r.area}>
-            <p className="cx-kicker">{r.area}</p>
-            <p className="a3-evo-before">{r.before}</p>
-            <p className="a3-evo-after">{r.after}</p>
-          </div>
-        ))}
-      </div>
-      <div className="a3-cuj">
-        <span className="cx-kicker">Core journey · now live</span>
-        <ol className="a3-cuj-steps">
-          {CUJ.map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ol>
-      </div>
+    <div className="a3-evo-grid">
+      {EVOLUTION.map((r) => (
+        <div className="cx-card a3-evo-card" key={r.area}>
+          <p className="cx-kicker">{r.area}</p>
+          <p className="a3-evo-before">{r.before}</p>
+          <p className="a3-evo-after">{r.after}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -397,9 +387,15 @@ function CloudChapter() {
               <strong>{c.provider}</strong>
               <span className="cx-muted">{c.hosts}</span>
             </div>
+            {c.hostsX && <p className="a3-expand a3-expand-block">{c.hostsX}</p>}
             <ul className="a3-checks">
               {c.points.map((p) => (
-                <li key={p}>{p}</li>
+                <li key={p.t}>
+                  <span>
+                    {p.t}
+                    {p.x && <span className="a3-expand"> ({p.x})</span>}
+                  </span>
+                </li>
               ))}
             </ul>
           </div>

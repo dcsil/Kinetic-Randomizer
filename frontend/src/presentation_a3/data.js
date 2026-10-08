@@ -23,12 +23,11 @@ export const EVOLUTION = [
   { area: "Access", before: "One machine", after: "Public URL" },
   { area: "Data", before: "SQLite file", after: "Managed Postgres" },
   { area: "Sign-in", before: "Any name", after: "Password + JWT" },
-  { area: "Shipping", before: "npm run dev", after: "Tag → auto-deploy" },
+  { area: "Shipping", before: "npm run dev", after: "Tag → auto‑deploy" },
   { area: "Secrets", before: "Local .env", after: "Cloud env vars" },
 ];
 
 // Critical user journey the architecture serves (unchanged from A2, now live).
-export const CUJ = ["Sign in", "Mark ready", "Randomize", "Run timer"];
 
 // Slide 4: clickable topology. `plane` drives the data / control highlight.
 export const NODES = {
@@ -47,7 +46,7 @@ export const NODES = {
     logos: ["vercel", "react"],
     what: "Static SPA build served from Vercel's global CDN. vercel.json rewrites every path to index.html, so deep links like /live work.",
     why: "Static assets need no server: free TLS, edge caching, zero-config Vite builds.",
-    limit: "Git auto-deploys are switched off (deploymentEnabled: false) so only the tagged workflow can ship.",
+    limit: "Git auto‑deploys are switched off (deploymentEnabled: false) so only the tagged workflow can ship.",
   },
   api: {
     plane: "data",
@@ -95,25 +94,40 @@ export const NODES = {
   },
 };
 
-// Slide 5: why this environment.
+// Slide 5: why this environment. `x` is the spelled-out acronym, shown small
+// so the presenter knows what to say.
 export const CLOUD_CHOICE = [
   {
     provider: "Vercel",
     logo: "vercel",
     hosts: "Web app",
-    points: ["Global CDN", "Free TLS", "Zero-config Vite builds"],
+    points: [
+      { t: "Global CDN", x: "Content Delivery Network" },
+      { t: "Free TLS", x: "Transport Layer Security, the S in HTTPS" },
+      { t: "Zero-config Vite builds" },
+    ],
   },
   {
     provider: "Render",
     logo: "render",
     hosts: "API + Postgres",
-    points: ["Long-running Node process", "Private network to the DB", "Infra as code: render.yaml"],
+    hostsX: "Application Programming Interface + PostgreSQL database",
+    points: [
+      { t: "Long-running Node process" },
+      { t: "Private network to the database" },
+      { t: "Infra as code: render.yaml" },
+    ],
   },
 ];
 
 export const CLOUD_NOTES = [
   { k: "Trade-off", v: "Free tier sleeps when idle" },
-  { k: "vs. AWS / GCP", v: "Same building blocks, far less setup for a two-person sprint" },
+  { k: "Trade-off at scale", v: "Vercel costs more than AWS or Cloudflare once traffic grows" },
+  {
+    k: "vs. AWS / GCP",
+    x: "Amazon Web Services / Google Cloud Platform",
+    v: "Same building blocks, far less setup for a two-person sprint",
+  },
 ];
 
 // Slide 6: the real deploy.yml, stage by stage.
