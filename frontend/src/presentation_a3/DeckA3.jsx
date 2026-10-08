@@ -345,7 +345,10 @@ function EvolutionChapter() {
         <div className="cx-card a3-evo-card" key={r.area}>
           <p className="cx-kicker">{r.area}</p>
           <p className="a3-evo-before">{r.before}</p>
-          <p className="a3-evo-after">{r.after}</p>
+          <p className="a3-evo-after">
+            {r.after}
+            {r.x && <span className="a3-evo-expand">({r.x})</span>}
+          </p>
         </div>
       ))}
     </div>
@@ -665,8 +668,8 @@ function ThanksChapter({ timer }) {
 /* ------------------------------------------------------------------ */
 // `speaker` is shown in the footer so the split between presenters is visible.
 const CHAPTERS = [
-  { id: "title", label: "Intro", speaker: "Azaria & Richard" },
   { id: "promo", label: "Promo video", speaker: "Azaria" },
+  { id: "title", label: "Intro", speaker: "Azaria & Richard" },
   { id: "evolution", label: "From localhost to live", speaker: "Azaria" },
   { id: "architecture", label: "Cloud architecture", speaker: "Richard" },
   { id: "cloud", label: "Why Render + Vercel", speaker: "Azaria" },

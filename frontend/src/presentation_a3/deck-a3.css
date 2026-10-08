@@ -1062,3 +1062,12 @@
   font-size: 1.15rem;
   font-weight: 600;
 }
+
+.a3-evo-expand {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--cx-muted);
+}

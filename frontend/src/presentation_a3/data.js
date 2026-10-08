@@ -23,7 +23,7 @@ export const EVOLUTION = [
   { area: "Runs on", before: "Our laptop", after: "Vercel + Render" },
   { area: "Access", before: "One machine", after: "Public URL" },
   { area: "Data", before: "SQLite file", after: "Managed Postgres" },
-  { area: "Sign-in", before: "Any name", after: "Password + JWT" },
+  { area: "Sign-in", before: "Any name", after: "Password + JWT", x: "JSON Web Token" },
   { area: "Shipping", before: "npm run dev", after: "Tag → auto‑deploy" },
   { area: "Secrets", before: "Local .env", after: "Cloud env vars" },
 ];
