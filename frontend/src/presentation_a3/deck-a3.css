@@ -114,27 +114,140 @@
   white-space: nowrap;
 }
 
-.a3-evo td,
-.a3-evo th {
-  font-size: 1.05rem;
-  padding: 0.75rem;
-}
-
 .a3-arrow {
   color: var(--cx-accent);
   font-weight: 700;
   width: 1.5rem;
 }
 
-.a3-callout {
+.a3-rule {
+  margin: 0.4rem 0.75rem 0.5rem;
+}
+
+/* Shared: chip row and kicker/value facts */
+.a3-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.a3-tags li {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--cx-border-strong);
+  border-radius: 999px;
+  background: var(--cx-surface-solid);
+  font-weight: 600;
+}
+
+.a3-tags li::before {
+  content: "✓ ";
+  color: var(--cx-great);
+}
+
+.a3-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem 2.5rem;
+}
+
+.a3-facts p {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 600;
-  text-align: center;
 }
 
-.a3-rule {
-  margin: 0.4rem 0.75rem 0.5rem;
+.a3-facts .cx-kicker {
+  display: block;
+}
+
+/* ---------- Evolution ---------- */
+.a3-evo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.a3-evo-card {
+  padding: 0.9rem 1.2rem;
+}
+
+.a3-evo-before {
+  margin: 0;
+  color: var(--cx-muted);
+  text-decoration: line-through;
+}
+
+.a3-evo-after {
+  margin: 0.15rem 0 0;
+  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.a3-cuj {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 1rem 1.3rem;
+  border: 1px solid color-mix(in oklch, var(--cx-accent) 30%, transparent);
+  border-radius: var(--cx-radius);
+  background: oklch(96.5% 0.02 276);
+}
+
+.a3-cuj .cx-kicker {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.a3-cuj-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.a3-cuj-steps li:not(:last-child)::after {
+  content: "→";
+  margin-left: 0.5rem;
+  color: var(--cx-accent);
+}
+
+/* ---------- Why Render + Vercel ---------- */
+.a3-cloud-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.a3-cloud-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.a3-cloud-head .cx-logo-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.a3-cloud-head .cx-muted {
+  margin-left: auto;
+  font-size: 1rem;
+}
+
+.a3-cloud-card .a3-checks li {
+  font-size: 1.15rem;
 }
 
 /* ---------- Architecture ---------- */
@@ -447,7 +560,7 @@
 /* ---------- Pipeline ---------- */
 .a3-pipe {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.6rem;
   margin: 0;
   padding: 0;
@@ -495,74 +608,90 @@
 }
 
 .a3-stage-title {
-  font-family: var(--cx-mono);
-  font-size: 1.05rem;
+  font-size: 1.3rem;
+  line-height: 1.2;
 }
 
 .a3-code {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.4rem;
-  padding: 0.6rem 0.7rem;
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 8px;
   background: oklch(22% 0.02 275);
   color: oklch(92% 0.02 275);
-  font-size: 0.74rem !important;
+  font-size: 0.8rem !important;
   line-height: 1.4;
 }
 
-.a3-guard-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-}
-
-.a3-guard {
-  padding: 1rem 1.1rem;
-}
-
-.a3-guard p:last-child {
+.a3-source {
   margin: 0;
-  font-size: 0.92rem;
 }
 
 /* ---------- Security ---------- */
-.a3-sec {
+.a3-vaults {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
-  align-items: start;
 }
 
-.a3-sec .a3-table-card .cx-kicker {
-  margin: 0.6rem 0.75rem 0.2rem;
+.a3-vault-gh {
+  border-color: color-mix(in oklch, var(--a3-control) 45%, transparent);
 }
 
-.a3-sec .a3-table td,
-.a3-sec .a3-table th {
-  padding: 0.36rem 0.7rem;
-  font-size: 0.85rem;
-  line-height: 1.3;
-}
-
-.a3-store {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.a3-store.is-gh {
+.a3-vault-gh .cx-kicker {
   color: var(--a3-control);
-  background: color-mix(in oklch, var(--a3-control) 12%, transparent);
 }
 
-.a3-store.is-render {
-  color: var(--a3-data);
-  background: color-mix(in oklch, var(--a3-data) 10%, transparent);
+.a3-vault-render {
+  border-color: color-mix(in oklch, var(--a3-data) 35%, transparent);
+}
+
+.a3-vault {
+  padding: 1rem 1.3rem;
+}
+
+.a3-vault-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.a3-vault-col {
+  gap: 0.75rem;
+}
+
+.a3-vault-col .a3-facts {
+  gap: 0.4rem;
+  padding: 0 0.4rem;
+}
+
+.a3-vault-col .a3-facts .cx-kicker {
+  margin: 0;
+}
+
+.a3-vault-role {
+  margin: 0 0 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.a3-secret-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.a3-secret-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.a3-secret-list code {
+  font-size: 0.9rem !important;
 }
 
 .a3-checks {
@@ -591,76 +720,66 @@
 /* ---------- Feedback ---------- */
 .a3-feedback {
   display: grid;
-  grid-template-columns: 1fr 17rem;
-  gap: 1.25rem;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .a3-fb td {
-  font-size: 0.92rem;
+  padding-block: 0.4rem;
+  font-size: 1.1rem;
+  vertical-align: middle;
 }
 
 .a3-fb tr.is-open td {
   background: color-mix(in oklch, var(--cx-moderate) 5%, transparent);
 }
 
-.a3-from {
-  display: block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--cx-muted);
-}
-
 .a3-status {
   white-space: nowrap;
-}
-
-.a3-status .cx-small {
-  display: block;
-  margin-top: 0.2rem;
+  text-align: right !important;
 }
 
 .a3-audit {
-  text-align: left;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0 1.25rem;
+}
+
+.a3-audit .cx-muted {
+  margin: 0;
+  font-size: 1.1rem;
 }
 
 .a3-big {
   margin: 0;
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1;
-  color: var(--cx-accent);
-}
-
-.a3-audit-note {
-  margin: 0.6rem 0;
-  font-size: 0.88rem;
-}
-
-.a3-milestones {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.88rem;
-}
-
-.a3-pr {
-  display: inline-block;
-  min-width: 2.4rem;
-  font-family: var(--cx-mono);
-  font-weight: 700;
   color: var(--cx-accent);
 }
 
 /* ---------- Roadmap ---------- */
 .a3-road td,
 .a3-road th {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+}
+
+.a3-road td,
+.a3-road tbody th {
+  padding-block: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ---------- Footer speaker tag ---------- */
+.a3-speaker {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--cx-accent-soft);
+  color: var(--cx-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .a3-road td:last-child {

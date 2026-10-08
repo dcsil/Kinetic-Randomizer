@@ -6,6 +6,9 @@ import { LOGOS } from "./logos";
 import {
   APP_SECURITY,
   AUDIT,
+  CLOUD_CHOICE,
+  CLOUD_NOTES,
+  CUJ,
   EVOLUTION,
   FEEDBACK,
   GUARDRAILS,
@@ -15,7 +18,8 @@ import {
   PIPELINE,
   PROMO_SRC,
   ROADMAP,
-  SECRETS,
+  SECRET_FACTS,
+  SECRET_STORES,
   TEAM,
 } from "./data";
 
@@ -115,16 +119,15 @@ function useHealth() {
 }
 
 function HealthBadge({ health, onRetry }) {
+  if (health.state !== "up") return null;
   return (
     <button
       type="button"
-      className={`cx-health cx-health-${health.state} a3-health`}
+      className="cx-health cx-health-up a3-health"
       onClick={onRetry}
       title="Re-check GET /healthz"
     >
-      {health.state === "up" && `API + DB up · ${health.ms} ms`}
-      {health.state === "down" && "API asleep or unreachable · retry"}
-      {health.state === "checking" && "Checking /healthz…"}
+      API + DB up · {health.ms} ms
     </button>
   );
 }
@@ -142,7 +145,20 @@ function StatusPill({ status }) {
   return status === "shipped" ? (
     <span className="cx-pill cx-sev-great">Shipped</span>
   ) : (
-    <span className="cx-pill cx-pill-open">Open</span>
+    <span className="cx-pill cx-pill-open">Next</span>
+  );
+}
+
+function Facts({ items }) {
+  return (
+    <div className="a3-facts">
+      {items.map((f) => (
+        <p key={f.k}>
+          <span className="cx-kicker">{f.k}</span>
+          {f.v}
+        </p>
+      ))}
+    </div>
   );
 }
 
@@ -217,34 +233,23 @@ function PromoChapter() {
 function EvolutionChapter() {
   return (
     <div className="cx-stack">
-      <div className="cx-card a3-table-card">
-        <table className="a3-table a3-evo">
-          <thead>
-            <tr>
-              <th />
-              <th>A2 · local sandbox</th>
-              <th aria-hidden="true" />
-              <th>A3 · cloud release</th>
-            </tr>
-          </thead>
-          <tbody>
-            {EVOLUTION.map((r) => (
-              <tr key={r.area}>
-                <th scope="row">{r.area}</th>
-                <td className="cx-muted">{r.before}</td>
-                <td className="a3-arrow" aria-hidden="true">→</td>
-                <td>
-                  <strong>{r.after}</strong>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="a3-evo-grid">
+        {EVOLUTION.map((r) => (
+          <div className="cx-card a3-evo-card" key={r.area}>
+            <p className="cx-kicker">{r.area}</p>
+            <p className="a3-evo-before">{r.before}</p>
+            <p className="a3-evo-after">{r.after}</p>
+          </div>
+        ))}
       </div>
-      <p className="a3-callout">
-        Same core loop as A2: sign in, mark who's ready, randomize, run the timer. A3 makes that loop
-        public, durable and repeatable.
-      </p>
+      <div className="a3-cuj">
+        <span className="cx-kicker">Core journey · now live</span>
+        <ol className="a3-cuj-steps">
+          {CUJ.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }
@@ -381,6 +386,30 @@ function ArchitectureChapter({ health, recheck }) {
   );
 }
 
+function CloudChapter() {
+  return (
+    <div className="cx-stack">
+      <div className="a3-cloud-grid">
+        {CLOUD_CHOICE.map((c) => (
+          <div className="cx-card a3-cloud-card" key={c.provider}>
+            <div className="a3-cloud-head">
+              <Logo name={c.logo} />
+              <strong>{c.provider}</strong>
+              <span className="cx-muted">{c.hosts}</span>
+            </div>
+            <ul className="a3-checks">
+              {c.points.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <Facts items={CLOUD_NOTES} />
+    </div>
+  );
+}
+
 function PipelineChapter() {
   return (
     <div className="cx-stack">
@@ -389,73 +418,55 @@ function PipelineChapter() {
           <li key={s.id} className={`a3-stage a3-stage-${s.id}`}>
             <span className="a3-stage-num">{i === 0 ? "v*" : i}</span>
             <strong className="a3-stage-title">{s.title}</strong>
-            <span className="cx-muted cx-small">{s.sub}</span>
-            <code className="a3-code">
-              {s.lines.map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </code>
+            <code className="a3-code">{s.line}</code>
           </li>
         ))}
       </ol>
-      <div className="a3-guard-grid">
+      <ul className="a3-tags">
         {GUARDRAILS.map((g) => (
-          <div className="cx-card a3-guard" key={g.k}>
-            <p className="cx-kicker">{g.k}</p>
-            <p>{g.v}</p>
-          </div>
+          <li key={g}>{g}</li>
         ))}
-      </div>
-      <p className="cx-muted cx-small">
-        Source: <code>.github/workflows/deploy.yml</code> · Vercel Git auto-deploys are disabled so this
-        workflow is the only path to production.
+      </ul>
+      <p className="cx-muted cx-small a3-source">
+        <code>.github/workflows/deploy.yml</code>
       </p>
     </div>
   );
 }
 
-function SecurityChapter() {
+function Vault({ store }) {
   return (
-    <div className="a3-sec">
-      <div className="cx-card a3-table-card">
-        <p className="cx-kicker">Secret management · zero credentials in git</p>
-        <table className="a3-table">
-          <thead>
-            <tr>
-              <th>Secret</th>
-              <th>Lives in</th>
-              <th>Used for</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SECRETS.map((s) => (
-              <tr key={s.name}>
-                <td>
-                  <code>{s.name}</code>
-                </td>
-                <td>
-                  <span className={`a3-store ${s.store.startsWith("GitHub") ? "is-gh" : "is-render"}`}>
-                    {s.store}
-                  </span>
-                </td>
-                <td className="cx-muted">{s.use}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="cx-muted cx-small a3-rule">
-          Rule: if a string can open the database or ship the app, it's a secret. Only{" "}
-          <code>.env.example</code> with localhost values is committed.
-        </p>
+    <div className={`cx-card a3-vault a3-vault-${store.kind}`}>
+      <p className="cx-kicker">{store.store}</p>
+      <p className="a3-vault-role">{store.role}</p>
+      <ul className="a3-secret-list">
+        {store.items.map((i) => (
+          <li key={i.name}>
+            <code>{i.name}</code>
+            {i.note && <span className="cx-muted">{i.note}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SecurityChapter() {
+  const [deployStore, runtimeStore] = SECRET_STORES;
+  return (
+    <div className="cx-stack">
+      <div className="a3-vaults">
+        <Vault store={deployStore} />
+        <div className="a3-vault-col">
+          <Vault store={runtimeStore} />
+          <Facts items={SECRET_FACTS} />
+        </div>
       </div>
-      <div className="cx-card">
-        <p className="cx-kicker">Application security in the MVP</p>
-        <ul className="a3-checks">
-          {APP_SECURITY.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
-      </div>
+      <ul className="a3-tags">
+        {APP_SECURITY.map((t) => (
+          <li key={t}>{t}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -467,42 +478,33 @@ function FeedbackChapter() {
         <table className="a3-table a3-fb">
           <thead>
             <tr>
-              <th>A2 signal</th>
-              <th>A3 response</th>
-              <th>Status</th>
+              <th>Feedback</th>
+              <th aria-hidden="true" />
+              <th>Response</th>
+              <th />
             </tr>
           </thead>
           <tbody>
             {FEEDBACK.map((f) => (
               <tr key={f.issue} className={f.status === "open" ? "is-open" : ""}>
-                <td>
-                  <span className="a3-from">{f.from}</span>
-                  {f.issue}
+                <td>{f.issue}</td>
+                <td className="a3-arrow" aria-hidden="true">
+                  →
                 </td>
                 <td>
                   <strong>{f.response}</strong>
                 </td>
                 <td className="a3-status">
                   <StatusPill status={f.status} />
-                  {f.pr && <span className="cx-muted cx-small">PR {f.pr}</span>}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="cx-card a3-audit">
-        <p className="cx-kicker">Audit trail</p>
+      <div className="a3-audit">
         <p className="a3-big">{AUDIT.prs}</p>
-        <p className="cx-muted cx-small">merged pull requests</p>
-        <p className="a3-audit-note">{AUDIT.note}</p>
-        <ol className="a3-milestones">
-          {AUDIT.milestones.map((m) => (
-            <li key={m.pr}>
-              <span className="a3-pr">{m.pr}</span> {m.title}
-            </li>
-          ))}
-        </ol>
+        <p className="cx-muted">merged PRs</p>
       </div>
     </div>
   );
@@ -515,9 +517,9 @@ function RoadmapChapter() {
         <thead>
           <tr>
             <th />
-            <th>Day One primitive</th>
-            <th>We change it when…</th>
-            <th>Future scalability vector</th>
+            <th>Day One</th>
+            <th>Change when</th>
+            <th>Next</th>
           </tr>
         </thead>
         <tbody>
@@ -533,10 +535,7 @@ function RoadmapChapter() {
           ))}
         </tbody>
       </table>
-      <p className="cx-muted cx-small a3-rule">
-        Deliberately not built on Day One: multi-region failover, service mesh, object storage. Peak load
-        today is one professor and a projector.
-      </p>
+      <p className="cx-muted cx-small a3-rule">Skipped on purpose: multi-region, service mesh</p>
     </div>
   );
 }
@@ -563,16 +562,18 @@ function ThanksChapter({ timer }) {
 /* ------------------------------------------------------------------ */
 /* Shell                                                               */
 /* ------------------------------------------------------------------ */
+// `speaker` is shown in the footer so the split between presenters is visible.
 const CHAPTERS = [
-  { id: "title", label: "Intro" },
-  { id: "promo", label: "Promo video" },
-  { id: "evolution", label: "From localhost to live" },
-  { id: "architecture", label: "Cloud architecture" },
-  { id: "pipeline", label: "Deployment Zen" },
-  { id: "security", label: "Security & secrets" },
-  { id: "feedback", label: "Feedback → maturation" },
-  { id: "roadmap", label: "MVP → future" },
-  { id: "thanks", label: "Thank you" },
+  { id: "title", label: "Intro", speaker: "Azaria & Richard" },
+  { id: "promo", label: "Promo video", speaker: "Azaria" },
+  { id: "evolution", label: "From localhost to live", speaker: "Azaria" },
+  { id: "architecture", label: "Cloud architecture", speaker: "Richard" },
+  { id: "cloud", label: "Why Render + Vercel", speaker: "Richard" },
+  { id: "pipeline", label: "Deployment Zen", speaker: "Richard" },
+  { id: "security", label: "Security & secrets", speaker: "Richard" },
+  { id: "feedback", label: "Feedback → maturation", speaker: "Azaria" },
+  { id: "roadmap", label: "MVP → future", speaker: "Azaria & Richard" },
+  { id: "thanks", label: "Thank you", speaker: "Azaria & Richard" },
 ];
 
 function readHash() {
@@ -641,6 +642,8 @@ export default function DeckA3() {
         return <EvolutionChapter />;
       case "architecture":
         return <ArchitectureChapter health={health} recheck={recheck} />;
+      case "cloud":
+        return <CloudChapter />;
       case "pipeline":
         return <PipelineChapter />;
       case "security":
@@ -706,6 +709,7 @@ export default function DeckA3() {
         <div className="cx-progress" aria-hidden="true">
           <span style={{ width: `${((index + 1) / CHAPTERS.length) * 100}%` }} />
         </div>
+        <span className="a3-speaker">{chapter.speaker}</span>
         <span className="cx-muted cx-small">
           {index + 1} / {CHAPTERS.length}
         </span>

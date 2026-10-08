@@ -19,13 +19,16 @@ export const PROMO_SRC = "/presentation_a3/promo.mp4";
 
 // Slide 3: what changed between the A2 local sandbox and the A3 cloud release.
 export const EVOLUTION = [
-  { area: "Where it runs", before: "Two dev servers on one laptop", after: "Vercel CDN + Render web service" },
-  { area: "Who can use it", before: "Only whoever has the laptop", after: `Anyone at ${LIVE_HOST}` },
-  { area: "Data", before: "SQLite file on disk", after: "Managed PostgreSQL, rows scoped per instructor" },
-  { area: "Sign-in", before: "Type any name", after: "Username + password (bcrypt), 12h JWT session" },
-  { area: "Shipping", before: "npm run dev", after: "Push a v* tag → GitHub Actions deploys both tiers" },
-  { area: "Secrets", before: "Local .env", after: "GitHub environment secrets + Render runtime env" },
+  { area: "Runs on", before: "Our laptop", after: "Vercel + Render" },
+  { area: "Access", before: "One machine", after: "Public URL" },
+  { area: "Data", before: "SQLite file", after: "Managed Postgres" },
+  { area: "Sign-in", before: "Any name", after: "Password + JWT" },
+  { area: "Shipping", before: "npm run dev", after: "Tag → auto-deploy" },
+  { area: "Secrets", before: "Local .env", after: "Cloud env vars" },
 ];
+
+// Critical user journey the architecture serves (unchanged from A2, now live).
+export const CUJ = ["Sign in", "Mark ready", "Randomize", "Run timer"];
 
 // Slide 4: clickable topology. `plane` drives the data / control highlight.
 export const NODES = {
@@ -92,124 +95,99 @@ export const NODES = {
   },
 };
 
-// Slide 5: the real deploy.yml, stage by stage.
+// Slide 5: why this environment.
+export const CLOUD_CHOICE = [
+  {
+    provider: "Vercel",
+    logo: "vercel",
+    hosts: "Web app",
+    points: ["Global CDN", "Free TLS", "Zero-config Vite builds"],
+  },
+  {
+    provider: "Render",
+    logo: "render",
+    hosts: "API + Postgres",
+    points: ["Long-running Node process", "Private network to the DB", "Infra as code: render.yaml"],
+  },
+];
+
+export const CLOUD_NOTES = [
+  { k: "Trade-off", v: "Free tier sleeps when idle" },
+  { k: "vs. AWS / GCP", v: "Same building blocks, far less setup for a two-person sprint" },
+];
+
+// Slide 6: the real deploy.yml, stage by stage.
 export const PIPELINE = [
-  {
-    id: "trigger",
-    title: "Trigger",
-    sub: "on: push tags v*",
-    lines: ["git tag v1.0.0-A3", "git push origin v1.0.0-A3"],
-  },
-  {
-    id: "verify",
-    title: "verify",
-    sub: "ubuntu · Node 22",
-    lines: ["backend: npm ci && npm run check", "frontend: npm ci && lint && build"],
-  },
-  {
-    id: "backend",
-    title: "deploy-backend",
-    sub: "environment: production",
-    lines: ["POST Render API: deploy $GITHUB_SHA", "poll every 15 s until live (fail on build_failed)", "curl $BACKEND_URL/healthz"],
-  },
-  {
-    id: "frontend",
-    title: "deploy-frontend",
-    sub: "environment: production",
-    lines: ["vercel pull --environment=production", "vercel build --prod", "vercel deploy --prebuilt --prod"],
-  },
+  { id: "trigger", title: "Tag", line: "git tag v1.0.0" },
+  { id: "verify", title: "Verify", line: "lint · build" },
+  { id: "backend", title: "Backend", line: "Render · /healthz" },
+  { id: "frontend", title: "Frontend", line: "Vercel · prod" },
 ];
 
 export const GUARDRAILS = [
-  { k: "Fails closed", v: "Any failed Render status, a timeout or a bad /healthz stops the release before the UI ships." },
-  { k: "No overlapping deploys", v: "concurrency group deploy-production, cancel-in-progress: false." },
-  { k: "Least privilege", v: "permissions: contents: read; deploy secrets scoped to the production environment." },
-  { k: "Order matters", v: "Backend before frontend, so the new UI never talks to an old API." },
+  "Fails closed",
+  "One deploy at a time",
+  "Read-only repo token",
+  "Backend ships before UI",
 ];
 
-// Slide 6: where each credential lives.
-export const SECRETS = [
-  { name: "RENDER_API_KEY", store: "GitHub · production env", use: "Trigger + poll the Render deploy" },
-  { name: "RENDER_SERVICE_ID", store: "GitHub · production env", use: "Which Render service to deploy" },
-  { name: "VERCEL_TOKEN", store: "GitHub · production env", use: "Auth for vercel pull / build / deploy" },
-  { name: "VERCEL_ORG_ID · VERCEL_PROJECT_ID", store: "GitHub · production env", use: "Which Vercel project" },
-  { name: "DATABASE_URL", store: "Render runtime", use: "Wired fromDatabase: never typed by a human" },
-  { name: "JWT_SECRET", store: "Render runtime", use: "generateValue: true: no one on the team has seen it" },
-  { name: "FRONTEND_ORIGIN", store: "Render runtime", use: "CORS allowlist (not secret, kept out of code)" },
+// Slide 7: where each credential lives.
+export const SECRET_STORES = [
+  {
+    store: "GitHub · production env",
+    kind: "gh",
+    role: "Can deploy, can't read data",
+    items: [
+      { name: "RENDER_API_KEY" },
+      { name: "RENDER_SERVICE_ID" },
+      { name: "VERCEL_TOKEN" },
+      { name: "VERCEL_ORG_ID" },
+      { name: "VERCEL_PROJECT_ID" },
+    ],
+  },
+  {
+    store: "Render runtime",
+    kind: "render",
+    role: "Can read data, can't deploy",
+    items: [
+      { name: "DATABASE_URL", note: "auto-wired" },
+      { name: "JWT_SECRET", note: "auto-generated" },
+    ],
+  },
+];
+
+export const SECRET_FACTS = [
+  { k: "In git", v: ".env.example only" },
+  { k: "If leaked", v: "Revoke → regenerate → re-tag" },
 ];
 
 export const APP_SECURITY = [
-  "Passwords hashed with bcrypt (cost 12); never stored or logged in plain text",
-  "Signed JWT, 12h expiry; every data route behind requireAuth",
-  "Rate limit on /register and /login: 20 tries per 15 min",
-  "CORS pinned to the Vercel origin, not *",
-  "Rows scoped by instructor_id: one professor can't read another's groups",
-  "Database closed to the internet (ipAllowList: [])",
-  "API refuses to boot without JWT_SECRET and DATABASE_URL",
+  "bcrypt passwords",
+  "12h JWT",
+  "Login rate limit",
+  "CORS allowlist",
+  "Per-instructor data",
+  "Private database",
 ];
 
-// Slide 7: A2 feedback → what A3 did about it. status: shipped | open
+// Slide 8: A2 feedback → what A3 did about it. status: shipped | open
 export const FEEDBACK = [
-  {
-    from: "Peer feedback",
-    issue: "Couldn't try the demo after class: it only ran on our laptop",
-    response: `Public URL: ${LIVE_HOST}`,
-    status: "shipped",
-    pr: "#33",
-  },
-  {
-    from: "CUJ audit",
-    issue: "Data lived on one machine; nothing survived a different laptop",
-    response: "Managed Postgres, data keyed per instructor",
-    status: "shipped",
-    pr: "#33",
-  },
-  {
-    from: "A2 trade-off",
-    issue: "Name-only sign-in: anyone could be anyone",
-    response: "Real accounts: bcrypt + JWT + rate limiting",
-    status: "shipped",
-    pr: "#33",
-  },
-  {
-    from: "Our reflection",
-    issue: "Scope creep: classroom switcher pulled time from the core loop",
-    response: "Removed classrooms; app scoped to CSC491",
-    status: "shipped",
-    pr: "#31",
-  },
-  {
-    from: "CUJ audit · severe",
-    issue: "Deleting a group is instant and permanent",
-    response: "Confirm before delete (next sprint)",
-    status: "open",
-  },
-  {
-    from: "CUJ audit · moderate",
-    issue: "Live timer waits for a Start click",
-    response: "Auto-start or impossible-to-miss Start",
-    status: "open",
-  },
+  { issue: "Demo only ran on our laptop", response: "Public URL", status: "shipped" },
+  { issue: "Data didn't survive a new machine", response: "Managed Postgres", status: "shipped" },
+  { issue: "Anyone could sign in as anyone", response: "Real accounts", status: "shipped" },
+  { issue: "Scope creep", response: "Cut to the core loop", status: "shipped" },
+  { issue: "Delete is instant", response: "Confirm dialog", status: "open" },
+  { issue: "Timer waits for Start", response: "Auto-start", status: "open" },
 ];
 
-export const AUDIT = {
-  prs: 19,
-  note: "Every change to main since the initial commit landed through a pull request.",
-  milestones: [
-    { pr: "#3", title: "Frontend MVP" },
-    { pr: "#6", title: "Backend API" },
-    { pr: "#24", title: "A2 CUJ Explorer" },
-    { pr: "#31", title: "Scope cut: remove classrooms" },
-    { pr: "#33", title: "Auth + Postgres + deploy pipeline" },
-  ],
-};
+export const AUDIT = { prs: 19 };
 
-// Slide 8: Day One primitive → what would make us change it → the future vector.
+// Slide 9: Day One primitive → what would make us change it → the future vector.
 export const ROADMAP = [
-  { area: "Compute", now: "One Render free web service", trigger: "Cold starts at the start of class", next: "Always-on paid instance, then autoscaling behind a load balancer" },
-  { area: "Data", now: "One free Postgres, pool of 10", trigger: "A full semester of real data", next: "Paid plan with backups + point-in-time restore, read replica" },
-  { area: "Identity", now: "Username + password, JWT in localStorage", trigger: "More instructors / department adoption", next: "UofT SSO (OIDC), httpOnly cookies, refresh tokens" },
-  { area: "Delivery", now: "Tag → production", trigger: "More contributors per sprint", next: "PR preview deploys, staging env, required checks" },
-  { area: "Real-time", now: "Timer runs in one browser", trigger: "Several screens following one session", next: "WebSockets/SSE with Redis pub/sub" },
-  { area: "Operations", now: "Render logs + /healthz", trigger: "Use outside class hours", next: "Uptime alerts, error tracking, metrics" },
+  { area: "Compute", now: "Free tier", trigger: "Cold starts", next: "Always-on" },
+  { area: "Data", now: "Free Postgres", trigger: "Semester of data", next: "Backups" },
+  { area: "Identity", now: "JWT login", trigger: "Dept. adoption", next: "UofT SSO" },
+  { area: "Delivery", now: "Tag → prod", trigger: "More devs", next: "Staging" },
+  { area: "Real-time", now: "One browser", trigger: "Many screens", next: "WebSockets" },
+  { area: "Ops", now: "/healthz", trigger: "Wider use", next: "Alerts" },
 ];
