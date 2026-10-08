@@ -3,22 +3,35 @@ import db from "../db.js";
 
 const router = Router();
 
-function getState() {
-  const row = db
-    .prepare("SELECT order_json, current_index FROM presentation_state WHERE id = 1")
-    .get();
+async function getState(instructorId) {
+  const { rows } = await db.query(
+    "SELECT order_json, current_index FROM presentation_state WHERE instructor_id = $1",
+    [instructorId]
+  );
+  const row = rows[0];
   return {
-    order: JSON.parse(row.order_json),
-    currentIndex: row.current_index,
+    order: row ? row.order_json : [],
+    currentIndex: row ? row.current_index : 0,
   };
 }
 
-router.get("/current", (_req, res) => {
-  res.json(getState());
+async function saveState(instructorId, order, currentIndex) {
+  await db.query(
+    `INSERT INTO presentation_state (instructor_id, order_json, current_index)
+     VALUES ($1, $2::jsonb, $3)
+     ON CONFLICT (instructor_id)
+     DO UPDATE SET order_json = EXCLUDED.order_json,
+                   current_index = EXCLUDED.current_index`,
+    [instructorId, JSON.stringify(order), currentIndex]
+  );
+}
+
+router.get("/current", async (req, res) => {
+  res.json(await getState(req.instructor.id));
 });
 
-router.put("/current", (req, res) => {
-  const state = getState();
+router.put("/current", async (req, res) => {
+  const state = await getState(req.instructor.id);
   let order = state.order;
 
   if (req.body?.order !== undefined) {
@@ -30,12 +43,11 @@ router.put("/current", (req, res) => {
     ) {
       return res.status(400).json({ error: "order must be a list of unique group ids" });
     }
-    const groupIds = new Set(
-      db
-        .prepare("SELECT id FROM groups")
-        .all()
-        .map((row) => row.id)
+    const { rows } = await db.query(
+      "SELECT id FROM groups WHERE instructor_id = $1",
+      [req.instructor.id]
     );
+    const groupIds = new Set(rows.map((row) => row.id));
     if (!next.every((id) => groupIds.has(id))) {
       return res.status(400).json({ error: "order contains unknown groups" });
     }
@@ -51,22 +63,16 @@ router.put("/current", (req, res) => {
   }
   currentIndex = order.length === 0 ? 0 : Math.min(currentIndex, order.length - 1);
 
-  db.prepare(
-    "UPDATE presentation_state SET order_json = ?, current_index = ? WHERE id = 1"
-  ).run(JSON.stringify(order), currentIndex);
-
+  await saveState(req.instructor.id, order, currentIndex);
   res.json({ order, currentIndex });
 });
 
-router.post("/next", (_req, res) => {
-  const { order, currentIndex } = getState();
+router.post("/next", async (req, res) => {
+  const { order, currentIndex } = await getState(req.instructor.id);
   const nextIndex =
     order.length === 0 ? 0 : Math.min(currentIndex + 1, order.length - 1);
 
-  db.prepare("UPDATE presentation_state SET current_index = ? WHERE id = 1").run(
-    nextIndex
-  );
-
+  await saveState(req.instructor.id, order, nextIndex);
   res.json({ order, currentIndex: nextIndex });
 });
 

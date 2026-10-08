@@ -1,139 +1,106 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import Database from "better-sqlite3";
+import pg from "pg";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = path.join(__dirname, "..", "data.sqlite");
-
-// The app serves a single course; older databases with multiple classrooms
-// keep only this one's groups when migrated.
-const COURSE_NAME = "CSC491";
-
-const db = new Database(dbPath);
-db.pragma("foreign_keys = ON");
-
-function tableExists(name) {
-  return Boolean(
-    db
-      .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
-      .get(name)
-  );
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set");
 }
 
-function columnNames(table) {
-  return db.prepare(`PRAGMA table_info(${table})`).all().map((col) => col.name);
-}
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.DATABASE_SSL === "true"
+      ? { rejectUnauthorized: false }
+      : undefined,
+  max: Number(process.env.DATABASE_POOL_MAX) || 10,
+});
 
-function createSchema() {
-  db.exec(`
+pool.on("error", (err) => {
+  console.error("Unexpected Postgres pool error", err);
+});
+
+export async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS instructors (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      display_name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS students (
       id TEXT PRIMARY KEY,
+      instructor_id TEXT NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
       name TEXT NOT NULL
     );
+    CREATE UNIQUE INDEX IF NOT EXISTS students_instructor_name_idx
+      ON students (instructor_id, lower(name));
 
     CREATE TABLE IF NOT EXISTS groups (
       id TEXT PRIMARY KEY,
+      instructor_id TEXT NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
-      ready INTEGER NOT NULL DEFAULT 1
+      ready BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
+    CREATE INDEX IF NOT EXISTS groups_instructor_idx ON groups (instructor_id);
 
+    -- A student can belong to at most one group.
     CREATE TABLE IF NOT EXISTS group_members (
-      group_id TEXT NOT NULL,
-      student_id TEXT NOT NULL,
-      PRIMARY KEY (group_id, student_id),
-      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
-      FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+      group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+      student_id TEXT NOT NULL UNIQUE REFERENCES students(id) ON DELETE CASCADE,
+      PRIMARY KEY (group_id, student_id)
     );
 
     CREATE TABLE IF NOT EXISTS presentation_state (
-      id INTEGER PRIMARY KEY CHECK (id = 1),
-      order_json TEXT NOT NULL DEFAULT '[]',
+      instructor_id TEXT PRIMARY KEY REFERENCES instructors(id) ON DELETE CASCADE,
+      order_json JSONB NOT NULL DEFAULT '[]'::jsonb,
       current_index INTEGER NOT NULL DEFAULT 0
     );
-
-    INSERT OR IGNORE INTO presentation_state (id, order_json, current_index)
-    VALUES (1, '[]', 0);
   `);
 }
 
-// Collapses the per-classroom schema into a single course, keeping the
-// CSC491 classroom (or the first one, if it doesn't exist).
-function migrateFromClassrooms() {
-  if (!tableExists("classrooms")) return;
-
-  const keep =
-    db
-      .prepare("SELECT id FROM classrooms WHERE lower(name) = lower(?)")
-      .get(COURSE_NAME) ?? db.prepare("SELECT id FROM classrooms LIMIT 1").get();
-
-  db.pragma("foreign_keys = OFF");
-  const tx = db.transaction(() => {
-    const groups = keep
-      ? db
-          .prepare("SELECT id, name, ready FROM groups WHERE classroom_id = ?")
-          .all(keep.id)
-      : [];
-    const state = keep
-      ? db
-          .prepare(
-            "SELECT order_json, current_index FROM presentation_state WHERE classroom_id = ?"
-          )
-          .get(keep.id)
-      : null;
-
-    db.prepare(
-      "DELETE FROM group_members WHERE group_id NOT IN (SELECT id FROM groups WHERE classroom_id = ?)"
-    ).run(keep?.id ?? null);
-    db.exec(`
-      DROP TABLE groups;
-      DROP TABLE presentation_state;
-      DROP TABLE classrooms;
-    `);
-    createSchema();
-
-    const insertGroup = db.prepare(
-      "INSERT INTO groups (id, name, ready) VALUES (?, ?, ?)"
-    );
-    for (const group of groups) {
-      insertGroup.run(group.id, group.name, group.ready);
-    }
-    if (state) {
-      db.prepare(
-        "UPDATE presentation_state SET order_json = ?, current_index = ? WHERE id = 1"
-      ).run(state.order_json, state.current_index);
-    }
-  });
-  tx();
-  db.pragma("foreign_keys = ON");
+export async function withTransaction(fn) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await fn(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 }
-
-if (tableExists("groups") && columnNames("groups").includes("classroom_id")) {
-  migrateFromClassrooms();
-}
-createSchema();
 
 export function mapStudent(row) {
   return { id: row.id, name: row.name };
 }
 
-export function mapGroup(row) {
-  const members = db
-    .prepare(
-      `SELECT s.id, s.name
-       FROM students s
-       JOIN group_members gm ON gm.student_id = s.id
-       WHERE gm.group_id = ?
-       ORDER BY s.name COLLATE NOCASE`
-    )
-    .all(row.id);
-
-  return {
+export async function fetchGroups(instructorId, groupId = null, client = pool) {
+  const { rows } = await client.query(
+    `SELECT g.id, g.name, g.ready,
+       COALESCE(
+         array_agg(s.id ORDER BY lower(s.name)) FILTER (WHERE s.id IS NOT NULL),
+         '{}'
+       ) AS student_ids,
+       COALESCE(string_agg(s.name, ', ' ORDER BY lower(s.name)), '') AS members
+     FROM groups g
+     LEFT JOIN group_members gm ON gm.group_id = g.id
+     LEFT JOIN students s ON s.id = gm.student_id
+     WHERE g.instructor_id = $1 AND ($2::text IS NULL OR g.id = $2)
+     GROUP BY g.id
+     ORDER BY lower(g.name)`,
+    [instructorId, groupId]
+  );
+  return rows.map((row) => ({
     id: row.id,
     name: row.name,
     ready: Boolean(row.ready),
-    studentIds: members.map((member) => member.id),
-    members: members.map((member) => member.name).join(", "),
-  };
+    studentIds: row.student_ids,
+    members: row.members,
+  }));
 }
 
-export default db;
+export default pool;

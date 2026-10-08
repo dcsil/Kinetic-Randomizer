@@ -14,7 +14,21 @@ import {
   TRADEOFFS,
 } from "./data";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"
+).replace(/\/$/, "");
+
+// Reuses the session the main app stored when the instructor signed in.
+function apiFetch(path, options = {}) {
+  const token = localStorage.getItem("kr_token");
+  return fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+}
 
 const SEVERITY_LABEL = {
   smooth: "Smooth",
@@ -50,7 +64,7 @@ function compactJson(value) {
 async function timedGet(path) {
   const t0 = performance.now();
   try {
-    const res = await fetch(`${API_BASE}${path}`);
+    const res = await apiFetch(path);
     const body = await res.json();
     return {
       status: res.status,
@@ -915,10 +929,10 @@ function DemoChapter({ demoTarget }) {
       setAuto(false);
       if (restoreGroup) {
         try {
-          const groups = await fetch(`${API_BASE}/api/groups`).then((x) => x.json());
+          const groups = await apiFetch("/api/groups").then((x) => x.json());
           const g = groups.find((x) => x.name === restoreGroup);
           if (g && !g.ready) {
-            await fetch(`${API_BASE}/api/groups/${g.id}`, {
+            await apiFetch(`/api/groups/${g.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ready: true }),
@@ -1136,7 +1150,7 @@ function ArchitectureChapter() {
 
   useEffect(() => {
     const t0 = performance.now();
-    fetch(`${API_BASE}/api/groups`)
+    fetch(`${API_BASE}/healthz`)
       .then((r) => r.json())
       .then(() => setHealth({ state: "up", ms: Math.round(performance.now() - t0) }))
       .catch(() => setHealth({ state: "down" }));

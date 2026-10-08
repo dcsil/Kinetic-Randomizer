@@ -1,5 +1,5 @@
 import { Router } from "express";
-import db, { mapGroup } from "../db.js";
+import db from "../db.js";
 
 const router = Router();
 
@@ -12,16 +12,23 @@ function shuffle(items) {
   return copy;
 }
 
-router.post("/order", (_req, res) => {
-  const groups = db.prepare("SELECT id, name, ready FROM groups").all().map(mapGroup);
+router.post("/order", async (req, res) => {
+  const { rows: groups } = await db.query(
+    "SELECT id, ready FROM groups WHERE instructor_id = $1",
+    [req.instructor.id]
+  );
 
   const ready = groups.filter((group) => group.ready);
   const notReady = groups.filter((group) => !group.ready);
   const order = [...shuffle(ready), ...notReady].map((group) => group.id);
 
-  db.prepare(
-    "UPDATE presentation_state SET order_json = ?, current_index = 0 WHERE id = 1"
-  ).run(JSON.stringify(order));
+  await db.query(
+    `INSERT INTO presentation_state (instructor_id, order_json, current_index)
+     VALUES ($1, $2::jsonb, 0)
+     ON CONFLICT (instructor_id)
+     DO UPDATE SET order_json = EXCLUDED.order_json, current_index = 0`,
+    [req.instructor.id, JSON.stringify(order)]
+  );
 
   res.json({ order });
 });

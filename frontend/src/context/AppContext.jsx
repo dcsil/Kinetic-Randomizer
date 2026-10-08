@@ -1,72 +1,109 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 const AppContext = createContext(null);
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"
+).replace(/\/$/, "");
+
+const TOKEN_KEY = "kr_token";
+const INSTRUCTOR_KEY = "kr_instructor";
 
 export const COURSE_NAME = "CSC491";
 
-async function api(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
-    ...options,
-  });
-  if (res.status === 204) return null;
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed (${res.status})`);
-  }
-  return data;
-}
-
 export function AppProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
   const [instructor, setInstructor] = useState(
-    () => localStorage.getItem("kr_instructor") || ""
+    () => localStorage.getItem(INSTRUCTOR_KEY) || ""
   );
   const [students, setStudents] = useState([]);
   const [groups, setGroups] = useState([]);
   const [order, setOrder] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  async function refreshStudents() {
+  const logout = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(INSTRUCTOR_KEY);
+    setToken("");
+    setInstructor("");
+    setStudents([]);
+    setGroups([]);
+    setOrder([]);
+    setCurrentIndex(0);
+  }, []);
+
+  const api = useCallback(
+    async (path, options = {}, authToken = token) => {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...options.headers,
+        },
+      });
+      if (res.status === 401 && authToken) {
+        logout();
+      }
+      if (res.status === 204) return null;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+      return data;
+    },
+    [token, logout]
+  );
+
+  const refreshStudents = useCallback(async () => {
     const loaded = await api("/api/students");
     setStudents(loaded);
     return loaded;
-  }
+  }, [api]);
 
-  async function refreshGroups() {
+  const refreshGroups = useCallback(async () => {
     const loaded = await api("/api/groups");
     setGroups(loaded);
     return loaded;
-  }
+  }, [api]);
 
-  async function refreshPresentation() {
+  const refreshPresentation = useCallback(async () => {
     const presentation = await api("/api/presentation/current");
     setOrder(presentation.order);
     setCurrentIndex(presentation.currentIndex);
     return presentation;
-  }
+  }, [api]);
 
   useEffect(() => {
-    if (!instructor) return;
-    Promise.all([refreshStudents(), refreshGroups(), refreshPresentation()]);
-  }, [instructor]);
+    if (!token) return;
+    Promise.all([refreshStudents(), refreshGroups(), refreshPresentation()]).catch(
+      (err) => console.error(err)
+    );
+  }, [token, refreshStudents, refreshGroups, refreshPresentation]);
 
-  async function login(name) {
-    const data = await api("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
-    localStorage.setItem("kr_instructor", data.instructor);
-    setInstructor(data.instructor);
+  function startSession(data) {
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(INSTRUCTOR_KEY, data.instructor.name);
+    setToken(data.token);
+    setInstructor(data.instructor.name);
   }
 
-  function logout() {
-    localStorage.removeItem("kr_instructor");
-    setInstructor("");
-    setGroups([]);
-    setOrder([]);
-    setCurrentIndex(0);
+  async function login(username, password) {
+    const data = await api(
+      "/api/auth/login",
+      { method: "POST", body: JSON.stringify({ username, password }) },
+      ""
+    );
+    startSession(data);
+  }
+
+  async function register(name, username, password) {
+    const data = await api(
+      "/api/auth/register",
+      { method: "POST", body: JSON.stringify({ name, username, password }) },
+      ""
+    );
+    startSession(data);
   }
 
   async function addStudent(payload) {
@@ -174,8 +211,9 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider
       value={{
-        instructor,
+        instructor: token ? instructor : "",
         login,
+        register,
         logout,
         students,
         refreshStudents,
