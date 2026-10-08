@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
@@ -7,7 +7,6 @@ import { useApp } from "../context/AppContext";
 const TILE_HUES = [276, 25, 150, 230, 330, 85, 190, 300, 55, 120];
 
 export default function Randomizer() {
-  const { classroomId } = useParams();
   const { groups, toggleReady, randomize, updatePresentation } = useApp();
   const [order, setOrderPreview] = useState(null);
   const [error, setError] = useState("");
@@ -39,7 +38,7 @@ export default function Randomizer() {
         <div>
           <h1>Randomizer</h1>
           <p className="page-sub">
-            Uncheck a group to push it to the end of this classroom's presentation order.
+            Uncheck a group to push it to the end of the presentation order.
           </p>
         </div>
         <button className="btn btn-primary" onClick={handleRandomize} disabled={groups.length === 0}>
@@ -62,7 +61,7 @@ export default function Randomizer() {
           </label>
         ))}
         {groups.length === 0 && (
-          <p className="empty-state">No groups in this classroom yet.</p>
+          <p className="empty-state">No groups yet.</p>
         )}
       </div>
 
@@ -95,7 +94,7 @@ export default function Randomizer() {
           {error && <p className="form-error">{error}</p>}
           <button
             className="btn btn-primary"
-            onClick={() => navigate(`/classrooms/${classroomId}/live`)}
+            onClick={() => navigate("/live")}
           >
             Start presentations &rarr;
           </button>

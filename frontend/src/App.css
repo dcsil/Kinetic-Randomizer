@@ -151,70 +151,7 @@
   font-size: 0.9rem;
 }
 
-.page-wide {
-  max-width: 1040px;
-}
-
-.page-wide h1 {
-  font-size: 2rem;
-}
-
-.classroom-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--space-5);
-}
-
-.classroom-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 180px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-6);
-  gap: var(--space-5);
-}
-
-.classroom-form {
-  grid-column: 1 / -1;
-}
-
-.classroom-open {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
-  border: none;
-  background: transparent;
-  padding: 0;
-  text-align: left;
-  color: inherit;
-}
-
-.classroom-open h3 {
-  font-size: 1.5rem;
-}
-
-.classroom-meta {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 1rem;
-}
-
-.classroom-open:hover h3 {
-  color: var(--color-accent);
-}
-
-.classroom-card-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.topnav-classroom {
+.topnav-course {
   font-weight: 600;
   color: var(--color-text);
 }
@@ -724,16 +661,6 @@
 @media (max-width: 640px) {
   .page {
     padding: var(--space-4);
-  }
-  .page-wide h1 {
-    font-size: 1.6rem;
-  }
-  .classroom-list {
-    grid-template-columns: 1fr;
-  }
-  .classroom-card {
-    min-height: 0;
-    padding: var(--space-5);
   }
   .group-form-fields {
     grid-template-columns: 1fr;

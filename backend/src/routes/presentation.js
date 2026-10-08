@@ -1,35 +1,24 @@
 import { Router } from "express";
-import db, { ensurePresentationState, getClassroom } from "../db.js";
+import db from "../db.js";
 
-const router = Router({ mergeParams: true });
+const router = Router();
 
-function getState(classroomId) {
-  ensurePresentationState(classroomId);
+function getState() {
   const row = db
-    .prepare(
-      "SELECT order_json, current_index FROM presentation_state WHERE classroom_id = ?"
-    )
-    .get(classroomId);
+    .prepare("SELECT order_json, current_index FROM presentation_state WHERE id = 1")
+    .get();
   return {
     order: JSON.parse(row.order_json),
     currentIndex: row.current_index,
   };
 }
 
-router.get("/current", (req, res) => {
-  if (!getClassroom(req.params.classroomId)) {
-    return res.status(404).json({ error: "classroom not found" });
-  }
-  res.json(getState(req.params.classroomId));
+router.get("/current", (_req, res) => {
+  res.json(getState());
 });
 
 router.put("/current", (req, res) => {
-  const { classroomId } = req.params;
-  if (!getClassroom(classroomId)) {
-    return res.status(404).json({ error: "classroom not found" });
-  }
-
-  const state = getState(classroomId);
+  const state = getState();
   let order = state.order;
 
   if (req.body?.order !== undefined) {
@@ -43,8 +32,8 @@ router.put("/current", (req, res) => {
     }
     const groupIds = new Set(
       db
-        .prepare("SELECT id FROM groups WHERE classroom_id = ?")
-        .all(classroomId)
+        .prepare("SELECT id FROM groups")
+        .all()
         .map((row) => row.id)
     );
     if (!next.every((id) => groupIds.has(id))) {
@@ -63,24 +52,20 @@ router.put("/current", (req, res) => {
   currentIndex = order.length === 0 ? 0 : Math.min(currentIndex, order.length - 1);
 
   db.prepare(
-    "UPDATE presentation_state SET order_json = ?, current_index = ? WHERE classroom_id = ?"
-  ).run(JSON.stringify(order), currentIndex, classroomId);
+    "UPDATE presentation_state SET order_json = ?, current_index = ? WHERE id = 1"
+  ).run(JSON.stringify(order), currentIndex);
 
   res.json({ order, currentIndex });
 });
 
-router.post("/next", (req, res) => {
-  if (!getClassroom(req.params.classroomId)) {
-    return res.status(404).json({ error: "classroom not found" });
-  }
-
-  const { order, currentIndex } = getState(req.params.classroomId);
+router.post("/next", (_req, res) => {
+  const { order, currentIndex } = getState();
   const nextIndex =
     order.length === 0 ? 0 : Math.min(currentIndex + 1, order.length - 1);
 
-  db.prepare(
-    "UPDATE presentation_state SET current_index = ? WHERE classroom_id = ?"
-  ).run(nextIndex, req.params.classroomId);
+  db.prepare("UPDATE presentation_state SET current_index = ? WHERE id = 1").run(
+    nextIndex
+  );
 
   res.json({ order, currentIndex: nextIndex });
 });
