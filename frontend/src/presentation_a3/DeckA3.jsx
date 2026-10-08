@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Shares the shell styles with the A2 deck; A3-only pieces live in deck-a3.css.
 import "../presentation/explorer.css";
 import "./deck-a3.css";
 import { LOGOS } from "./logos";
 import {
-  APP_SECURITY,
   AUDIT,
+  CLOUD_CHOICE,
+  CLOUD_NOTES,
   EVOLUTION,
   FEEDBACK,
   GUARDRAILS,
@@ -13,9 +14,11 @@ import {
   LIVE_URL,
   NODES,
   PIPELINE,
+  PROMO_POSTER,
   PROMO_SRC,
   ROADMAP,
-  SECRETS,
+  SECRET_FACTS,
+  SECRET_STORES,
   TEAM,
 } from "./data";
 
@@ -115,16 +118,15 @@ function useHealth() {
 }
 
 function HealthBadge({ health, onRetry }) {
+  if (health.state !== "up") return null;
   return (
     <button
       type="button"
-      className={`cx-health cx-health-${health.state} a3-health`}
+      className="cx-health cx-health-up a3-health"
       onClick={onRetry}
       title="Re-check GET /healthz"
     >
-      {health.state === "up" && `API + DB up · ${health.ms} ms`}
-      {health.state === "down" && "API asleep or unreachable · retry"}
-      {health.state === "checking" && "Checking /healthz…"}
+      API + DB up · {health.ms} ms
     </button>
   );
 }
@@ -142,38 +144,116 @@ function StatusPill({ status }) {
   return status === "shipped" ? (
     <span className="cx-pill cx-sev-great">Shipped</span>
   ) : (
-    <span className="cx-pill cx-pill-open">Open</span>
+    <span className="cx-pill cx-pill-open">Next</span>
+  );
+}
+
+function Facts({ items }) {
+  return (
+    <div className="a3-facts">
+      {items.map((f) => (
+        <p key={f.k}>
+          <span className="cx-kicker">{f.k}</span>
+          {f.x && <span className="a3-expand a3-expand-block">{f.x}</span>}
+          {f.v}
+        </p>
+      ))}
+    </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
 /* Chapters                                                            */
 /* ------------------------------------------------------------------ */
+// Digital talk timer, styled like the app's live view: a glowing ring with
+// ticks and big mono digits, counting down from 7:00 while the slide is up.
+const SCREEN_TALK = 7 * 60;
+const RING_TICKS = Array.from({ length: 60 }, (_, i) => i);
+
+function TimerScreen() {
+  // Start mid-talk so the glowing arc is already visible.
+  const [left, setLeft] = useState(4 * 60 + 48);
+  useEffect(() => {
+    const id = setInterval(() => setLeft((s) => (s <= 0 ? SCREEN_TALK : s - 1)), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const progress = 1 - left / SCREEN_TALK;
+  const r = 118;
+  const circ = 2 * Math.PI * r;
+  return (
+    <span className="a3-timer-screen">
+      <span className="a3-timer-stage">
+        <svg className="a3-timer-ring" viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r={r} className="a3-ring-track" />
+          <circle
+            cx="150"
+            cy="150"
+            r={r}
+            className="a3-ring-fill"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - progress)}
+            transform="rotate(-90 150 150)"
+          />
+          {RING_TICKS.map((i) => {
+            const a = (i / 60) * Math.PI * 2;
+            const major = i % 5 === 0;
+            const r1 = 100;
+            const r2 = major ? 88 : 94;
+            return (
+              <line
+                key={i}
+                x1={150 + Math.sin(a) * r1}
+                y1={150 - Math.cos(a) * r1}
+                x2={150 + Math.sin(a) * r2}
+                y2={150 - Math.cos(a) * r2}
+                className={`a3-ring-tick ${i / 60 <= progress ? "is-on" : ""} ${major ? "is-major" : ""}`}
+              />
+            );
+          })}
+        </svg>
+        <span className="a3-timer-readout">
+          <span className="a3-timer-phase">Talk</span>
+          <span className="a3-timer-digits">{formatClock(left)}</span>
+          <span className="a3-timer-group">Pixel Pioneers · 1 of 6</span>
+        </span>
+      </span>
+    </span>
+  );
+}
+
+// Title: team on the left, a live talk timer framed in a browser on the right.
 function TitleChapter({ health, recheck }) {
   return (
-    <div className="cx-title">
-      <h1 className="cx-hero">
-        <span className="cx-hero-brand">{TEAM.product}</span>
-        <span className="cx-hero-sub">From localhost to live · Team {TEAM.name}</span>
-      </h1>
-      <div className="cx-members">
-        {TEAM.members.map((m) => (
-          <div className="cx-member" key={m.name}>
-            <img className="cx-avatar cx-avatar-photo" src={m.photo} alt="" />
-            <span>
-              <strong>{m.name}</strong>
-              <span className="cx-muted cx-small">{m.role}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="a3-live-row">
-        <a className="a3-url" href={LIVE_URL} target="_blank" rel="noreferrer">
-          <span className="cx-live-dot" aria-hidden="true" />
-          {LIVE_HOST}
-        </a>
+    <div className="a3-title-b">
+      <div className="a3-title-b-copy">
+        <h1 className="a3-title-b-brand">{TEAM.product}</h1>
+        <div className="a3-title-b-team">
+          {TEAM.members.map((m) => (
+            <div className="a3-title-b-member" key={m.name}>
+              <img src={m.photo} alt="" />
+              <span>
+                <strong>{m.name}</strong>
+                <span className="cx-muted cx-small">{m.role}</span>
+              </span>
+            </div>
+          ))}
+        </div>
         <HealthBadge health={health} onRetry={recheck} />
       </div>
+      <a className="a3-title-b-browser" href={LIVE_URL} target="_blank" rel="noreferrer">
+        <span className="a3-title-b-bar">
+          <span className="a3-title-b-dots" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="a3-title-b-url">
+            <span className="a3-title-b-live" aria-hidden="true" />
+            {LIVE_HOST}
+          </span>
+        </span>
+        <TimerScreen />
+      </a>
     </div>
   );
 }
@@ -201,50 +281,73 @@ function PromoChapter() {
           </p>
         </div>
       ) : (
+        <PromoPlayer onError={() => setState("missing")} />
+      )}
+    </div>
+  );
+}
+
+// Promo video with sound, plus a full-screen toggle. Esc (or the button)
+// exits full screen; the browser handles Esc natively.
+function PromoPlayer({ onError }) {
+  const wrapRef = useRef(null);
+  const videoRef = useRef(null);
+  const [full, setFull] = useState(false);
+
+  useEffect(() => {
+    const onChange = () => setFull(document.fullscreenElement === wrapRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  function toggleFull() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      return;
+    }
+    const video = videoRef.current;
+    wrapRef.current.requestFullscreen?.();
+    // Clicking is a user gesture, so playback with sound is allowed.
+    video.muted = false;
+    video.volume = 1;
+    if (video.paused) video.play().catch(() => {});
+  }
+
+  return (
+    <div className="a3-video-col">
+      <div ref={wrapRef} className={`a3-video-wrap ${full ? "is-full" : ""}`}>
         <video
+          ref={videoRef}
           className="a3-video"
           src={PROMO_SRC}
+          poster={PROMO_POSTER}
           controls
           playsInline
-          preload="metadata"
-          onError={() => setState("missing")}
+          // Fetch the 23 MB file only on play; the poster holds the frame meanwhile.
+          preload="none"
+          onError={onError}
         />
-      )}
+        {full && <span className="a3-full-hint">Esc to exit full screen</span>}
+      </div>
+      <div className="a3-video-bar">
+        <button type="button" className="cx-btn cx-btn-primary" onClick={toggleFull}>
+          ⛶ Full screen
+        </button>
+      </div>
     </div>
   );
 }
 
 function EvolutionChapter() {
   return (
-    <div className="cx-stack">
-      <div className="cx-card a3-table-card">
-        <table className="a3-table a3-evo">
-          <thead>
-            <tr>
-              <th />
-              <th>A2 · local sandbox</th>
-              <th aria-hidden="true" />
-              <th>A3 · cloud release</th>
-            </tr>
-          </thead>
-          <tbody>
-            {EVOLUTION.map((r) => (
-              <tr key={r.area}>
-                <th scope="row">{r.area}</th>
-                <td className="cx-muted">{r.before}</td>
-                <td className="a3-arrow" aria-hidden="true">→</td>
-                <td>
-                  <strong>{r.after}</strong>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="a3-callout">
-        Same core loop as A2: sign in, mark who's ready, randomize, run the timer. A3 makes that loop
-        public, durable and repeatable.
-      </p>
+    <div className="a3-evo-grid">
+      {EVOLUTION.map((r) => (
+        <div className="cx-card a3-evo-card" key={r.area}>
+          <p className="cx-kicker">{r.area}</p>
+          <p className="a3-evo-before">{r.before}</p>
+          <p className="a3-evo-after">{r.after}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -381,6 +484,36 @@ function ArchitectureChapter({ health, recheck }) {
   );
 }
 
+function CloudChapter() {
+  return (
+    <div className="cx-stack">
+      <div className="a3-cloud-grid">
+        {CLOUD_CHOICE.map((c) => (
+          <div className="cx-card a3-cloud-card" key={c.provider}>
+            <div className="a3-cloud-head">
+              <Logo name={c.logo} />
+              <strong>{c.provider}</strong>
+              <span className="cx-muted">{c.hosts}</span>
+            </div>
+            {c.hostsX && <p className="a3-expand a3-expand-block">{c.hostsX}</p>}
+            <ul className="a3-checks">
+              {c.points.map((p) => (
+                <li key={p.t}>
+                  <span>
+                    {p.t}
+                    {p.x && <span className="a3-expand"> ({p.x})</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <Facts items={CLOUD_NOTES} />
+    </div>
+  );
+}
+
 function PipelineChapter() {
   return (
     <div className="cx-stack">
@@ -389,72 +522,49 @@ function PipelineChapter() {
           <li key={s.id} className={`a3-stage a3-stage-${s.id}`}>
             <span className="a3-stage-num">{i === 0 ? "v*" : i}</span>
             <strong className="a3-stage-title">{s.title}</strong>
-            <span className="cx-muted cx-small">{s.sub}</span>
-            <code className="a3-code">
-              {s.lines.map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </code>
+            <code className="a3-code">{s.line}</code>
           </li>
         ))}
       </ol>
-      <div className="a3-guard-grid">
+      <ul className="a3-tags">
         {GUARDRAILS.map((g) => (
-          <div className="cx-card a3-guard" key={g.k}>
-            <p className="cx-kicker">{g.k}</p>
-            <p>{g.v}</p>
-          </div>
+          <li key={g}>{g}</li>
         ))}
-      </div>
-      <p className="cx-muted cx-small">
-        Source: <code>.github/workflows/deploy.yml</code> · Vercel Git auto-deploys are disabled so this
-        workflow is the only path to production.
+      </ul>
+      <p className="cx-muted cx-small a3-source">
+        <code>.github/workflows/deploy.yml</code>
       </p>
     </div>
   );
 }
 
-function SecurityChapter() {
+function Vault({ store }) {
   return (
-    <div className="a3-sec">
-      <div className="cx-card a3-table-card">
-        <p className="cx-kicker">Secret management · zero credentials in git</p>
-        <table className="a3-table">
-          <thead>
-            <tr>
-              <th>Secret</th>
-              <th>Lives in</th>
-              <th>Used for</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SECRETS.map((s) => (
-              <tr key={s.name}>
-                <td>
-                  <code>{s.name}</code>
-                </td>
-                <td>
-                  <span className={`a3-store ${s.store.startsWith("GitHub") ? "is-gh" : "is-render"}`}>
-                    {s.store}
-                  </span>
-                </td>
-                <td className="cx-muted">{s.use}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="cx-muted cx-small a3-rule">
-          Rule: if a string can open the database or ship the app, it's a secret. Only{" "}
-          <code>.env.example</code> with localhost values is committed.
-        </p>
-      </div>
-      <div className="cx-card">
-        <p className="cx-kicker">Application security in the MVP</p>
-        <ul className="a3-checks">
-          {APP_SECURITY.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
+    <div className={`cx-card a3-vault a3-vault-${store.kind}`}>
+      <p className="cx-kicker">{store.store}</p>
+      <p className="a3-vault-role">{store.role}</p>
+      <ul className="a3-secret-list">
+        {store.items.map((i) => (
+          <li key={i.name}>
+            <code>{i.name}</code>
+            {i.note && <span className="cx-muted">{i.note}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SecurityChapter() {
+  const [deployStore, runtimeStore] = SECRET_STORES;
+  return (
+    <div className="cx-stack">
+      <div className="a3-vaults">
+        <Vault store={deployStore} />
+        <div className="a3-vault-col">
+          <Vault store={runtimeStore} />
+          <Facts items={SECRET_FACTS} />
+        </div>
       </div>
     </div>
   );
@@ -467,42 +577,33 @@ function FeedbackChapter() {
         <table className="a3-table a3-fb">
           <thead>
             <tr>
-              <th>A2 signal</th>
-              <th>A3 response</th>
-              <th>Status</th>
+              <th>Feedback</th>
+              <th aria-hidden="true" />
+              <th>Response</th>
+              <th />
             </tr>
           </thead>
           <tbody>
             {FEEDBACK.map((f) => (
               <tr key={f.issue} className={f.status === "open" ? "is-open" : ""}>
-                <td>
-                  <span className="a3-from">{f.from}</span>
-                  {f.issue}
+                <td>{f.issue}</td>
+                <td className="a3-arrow" aria-hidden="true">
+                  →
                 </td>
                 <td>
                   <strong>{f.response}</strong>
                 </td>
                 <td className="a3-status">
                   <StatusPill status={f.status} />
-                  {f.pr && <span className="cx-muted cx-small">PR {f.pr}</span>}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="cx-card a3-audit">
-        <p className="cx-kicker">Audit trail</p>
+      <div className="a3-audit">
         <p className="a3-big">{AUDIT.prs}</p>
-        <p className="cx-muted cx-small">merged pull requests</p>
-        <p className="a3-audit-note">{AUDIT.note}</p>
-        <ol className="a3-milestones">
-          {AUDIT.milestones.map((m) => (
-            <li key={m.pr}>
-              <span className="a3-pr">{m.pr}</span> {m.title}
-            </li>
-          ))}
-        </ol>
+        <p className="cx-muted">merged PRs</p>
       </div>
     </div>
   );
@@ -515,9 +616,9 @@ function RoadmapChapter() {
         <thead>
           <tr>
             <th />
-            <th>Day One primitive</th>
-            <th>We change it when…</th>
-            <th>Future scalability vector</th>
+            <th>Day One</th>
+            <th>Change when</th>
+            <th>Next</th>
           </tr>
         </thead>
         <tbody>
@@ -528,15 +629,14 @@ function RoadmapChapter() {
                 <strong>{r.now}</strong>
               </td>
               <td className="cx-muted">{r.trigger}</td>
-              <td>{r.next}</td>
+              <td>
+                {r.next}
+                {r.why && <span className="a3-road-why">{r.why}</span>}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="cx-muted cx-small a3-rule">
-        Deliberately not built on Day One: multi-region failover, service mesh, object storage. Peak load
-        today is one professor and a projector.
-      </p>
     </div>
   );
 }
@@ -563,16 +663,18 @@ function ThanksChapter({ timer }) {
 /* ------------------------------------------------------------------ */
 /* Shell                                                               */
 /* ------------------------------------------------------------------ */
+// `speaker` is shown in the footer so the split between presenters is visible.
 const CHAPTERS = [
-  { id: "title", label: "Intro" },
-  { id: "promo", label: "Promo video" },
-  { id: "evolution", label: "From localhost to live" },
-  { id: "architecture", label: "Cloud architecture" },
-  { id: "pipeline", label: "Deployment Zen" },
-  { id: "security", label: "Security & secrets" },
-  { id: "feedback", label: "Feedback → maturation" },
-  { id: "roadmap", label: "MVP → future" },
-  { id: "thanks", label: "Thank you" },
+  { id: "title", label: "Intro", speaker: "Azaria & Richard" },
+  { id: "promo", label: "Promo video", speaker: "Azaria" },
+  { id: "evolution", label: "From localhost to live", speaker: "Azaria" },
+  { id: "architecture", label: "Cloud architecture", speaker: "Richard" },
+  { id: "cloud", label: "Why Render + Vercel", speaker: "Azaria" },
+  { id: "pipeline", label: "Deployment Zen", speaker: "Richard" },
+  { id: "security", label: "Security & secrets", speaker: "Richard" },
+  { id: "feedback", label: "Feedback → maturation", speaker: "Azaria" },
+  { id: "roadmap", label: "MVP → future", speaker: "Richard" },
+  { id: "thanks", label: "Thank you", speaker: "Azaria & Richard" },
 ];
 
 function readHash() {
@@ -615,6 +717,8 @@ export default function DeckA3() {
   useEffect(() => {
     function onKey(e) {
       if (e.target.closest?.("input, textarea, select, video")) return;
+      // Leave keys to the video while it is full screen.
+      if (document.fullscreenElement) return;
       if (e.key === "ArrowRight" || e.key === "PageDown") {
         e.preventDefault();
         goIndex(index + 1);
@@ -641,6 +745,8 @@ export default function DeckA3() {
         return <EvolutionChapter />;
       case "architecture":
         return <ArchitectureChapter health={health} recheck={recheck} />;
+      case "cloud":
+        return <CloudChapter />;
       case "pipeline":
         return <PipelineChapter />;
       case "security":
@@ -706,6 +812,7 @@ export default function DeckA3() {
         <div className="cx-progress" aria-hidden="true">
           <span style={{ width: `${((index + 1) / CHAPTERS.length) * 100}%` }} />
         </div>
+        <span className="a3-speaker">{chapter.speaker}</span>
         <span className="cx-muted cx-small">
           {index + 1} / {CHAPTERS.length}
         </span>
