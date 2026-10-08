@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
@@ -15,10 +15,9 @@ function formatTime(totalSeconds) {
 }
 
 export default function PresentationLive() {
-  const { classroomId } = useParams();
   const { groups, order, currentIndex, nextGroup, updatePresentation } = useApp();
   const navigate = useNavigate();
-  const groupsPath = `/classrooms/${classroomId}`;
+  const groupsPath = "/groups";
 
   const [phase, setPhase] = useState("presenting"); // presenting | qa
   const [secondsLeft, setSecondsLeft] = useState(PRESENTATION_SECONDS);

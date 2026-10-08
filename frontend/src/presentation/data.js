@@ -37,17 +37,6 @@ export const STEPS = [
   },
   {
     id: 2,
-    title: "Select classroom",
-    action: "Open the class's classroom card.",
-    // Not in the original audit (classrooms came later) — placeholder, re-time.
-    seconds: 5,
-    severity: "smooth",
-    contextSwitch: null,
-    evidence: [],
-    demo: "classrooms",
-  },
-  {
-    id: 3,
     title: "Switch to Randomizer",
     action: "Readiness badge isn't clickable — leave the dashboard to flip it.",
     seconds: 10,
@@ -58,7 +47,7 @@ export const STEPS = [
     demo: "groups",
   },
   {
-    id: 4,
+    id: 3,
     title: "Randomize",
     action: "Uncheck the not-ready group, click Randomize.",
     seconds: 10,
@@ -68,7 +57,7 @@ export const STEPS = [
     demo: "randomizer",
   },
   {
-    id: 5,
+    id: 4,
     title: "Start presentations",
     action: "Click Start presentations.",
     seconds: 2,
@@ -78,7 +67,7 @@ export const STEPS = [
     demo: "live",
   },
   {
-    id: 6,
+    id: 5,
     title: "Timer sits idle",
     action: "Live view loads, timer isn't running.",
     seconds: 5,
@@ -90,7 +79,7 @@ export const STEPS = [
     demo: "live",
   },
   {
-    id: 7,
+    id: 6,
     title: "Click Start",
     action: "Remember to click Start.",
     seconds: 2,
@@ -101,7 +90,7 @@ export const STEPS = [
     demo: "live",
   },
   {
-    id: 8,
+    id: 7,
     title: "Accidental delete",
     action: "Misclick Delete — group gone instantly.",
     seconds: 2,
@@ -122,7 +111,7 @@ export const FINDINGS = [
     id: "order",
     severity: "great",
     title: "Not-ready groups can be placed last",
-    steps: [4],
+    steps: [3],
   },
   {
     id: "textsize",
@@ -134,9 +123,9 @@ export const FINDINGS = [
     id: "clicks",
     severity: "moderate",
     title: "Too many clicks before presentation",
-    steps: [1, 2, 3, 4, 5, 7],
+    steps: [1, 2, 3, 4, 6],
     timeLost: "Setup time before every session",
-    rootCause: "Sign-in, classroom, Randomizer and live view are separate screens with no shortcut.",
+    rootCause: "Sign-in, Randomizer and live view are separate screens with no shortcut.",
     recommendation: "Have a quick start that auto-starts the presentations for CSC491.",
     rec: 1,
   },
@@ -144,7 +133,7 @@ export const FINDINGS = [
     id: "timer",
     severity: "moderate",
     title: "Timer doesn't auto-start",
-    steps: [6, 7],
+    steps: [5, 6],
     timeLost: "First seconds of each talk",
     rootCause: "Live view starts with running = false.",
     recommendation: "Make Start impossible to miss (pulse, or start on any key).",
@@ -153,7 +142,7 @@ export const FINDINGS = [
     id: "delete",
     severity: "severe",
     title: "Deleting groups & removing students is permanent",
-    steps: [8],
+    steps: [7],
     timeLost: "Re-entering the group mid-class",
     rootCause: "Delete calls DELETE /groups/:id directly, and Save PUTs the new member list — both hard writes, no undo.",
     recommendation: "Confirm before deleting groups or removing students. Stretch: undo toast.",
@@ -203,10 +192,9 @@ export const TRADEOFFS = [
 ];
 
 export const ENDPOINTS = [
-  { method: "GET", path: "/api/classrooms" },
   { method: "GET", path: "/api/students" },
-  { method: "GET", path: "/api/classrooms/:id/groups" },
-  { method: "GET", path: "/api/classrooms/:id/presentation/current" },
+  { method: "GET", path: "/api/groups" },
+  { method: "GET", path: "/api/presentation/current" },
 ];
 
 export const REFLECTION = [

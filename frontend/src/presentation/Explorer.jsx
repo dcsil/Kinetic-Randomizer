@@ -31,7 +31,7 @@ const SWITCH_LABEL = {
 
 const TOTAL_SECONDS = STEPS.reduce((sum, s) => sum + s.seconds, 0);
 // The intended flow: sign in, start presenting.
-const HAPPY_IDS = [1, 5];
+const HAPPY_IDS = [1, 4];
 const findingById = (id) => FINDINGS.find((f) => f.id === id);
 
 function formatClock(totalSeconds) {
@@ -602,28 +602,12 @@ function FindingsChapter({ openFinding }) {
 
 /* Live demo: the real app in an iframe, a CUJ stopwatch, and an autopilot that
    walks the unhappy path through the real UI (same origin, so it can drive it). */
-function useDemoRoutes() {
-  const [classroom, setClassroom] = useState(null);
-  useEffect(() => {
-    fetch(`${API_BASE}/api/classrooms`)
-      .then((r) => r.json())
-      .then((list) => {
-        setClassroom(list.find((c) => c.name === "CSC491") || list[0] || null);
-      })
-      .catch(() => setClassroom(null));
-  }, []);
-  const routes = useMemo(() => {
-    const base = classroom ? `/classrooms/${classroom.id}` : null;
-    return {
-      login: "/",
-      classrooms: "/classrooms",
-      groups: base || "/classrooms",
-      randomizer: base ? `${base}/randomizer` : "/classrooms",
-      live: base ? `${base}/live` : "/classrooms",
-    };
-  }, [classroom]);
-  return { classroom, routes };
-}
+const DEMO_ROUTES = {
+  login: "/",
+  groups: "/groups",
+  randomizer: "/randomizer",
+  live: "/live",
+};
 
 // Stopwatch state for a CUJ run, shared by manual and autopilot runs.
 function useRun() {
@@ -694,10 +678,10 @@ const AUTOPLAY_PACE = 1.5;
 const FRAME_SCALE = 0.85;
 
 function DemoChapter({ demoTarget }) {
-  const { classroom, routes } = useDemoRoutes();
+  const routes = DEMO_ROUTES;
   const frameRef = useRef(null);
-  const [target, setTarget] = useState(() => ({ key: demoTarget?.key || "classrooms", nonce: 0 }));
-  const [path, setPath] = useState("/classrooms");
+  const [target, setTarget] = useState(() => ({ key: demoTarget?.key || "groups", nonce: 0 }));
+  const [path, setPath] = useState("/groups");
   const [cursor, setCursor] = useState(null); // { x, y, click }
   const [caption, setCaption] = useState(null); // { step, text }
   const [auto, setAuto] = useState(false);
@@ -711,7 +695,7 @@ function DemoChapter({ demoTarget }) {
   useEffect(() => {
     runRef.current = run;
   });
-  const src = routes[target.key] || "/classrooms";
+  const src = routes[target.key] || "/groups";
 
   const navigate = useCallback((key) => {
     setTarget((t) => ({ key, nonce: t.nonce + 1 }));
@@ -851,23 +835,17 @@ function DemoChapter({ demoTarget }) {
       await pointAt(input, true);
       await type(input, "Atoosa Nasiri");
       await pointAt(await find(bySelector(".login-card button[type=submit]"), "Sign in"), true);
-      const room = await find(bySelector(".classroom-open", classroom?.name || ""), "the classroom");
-      r().next();
-
-      // 2 · Select classroom
-      await say(1, "Pick the classroom.", 600);
-      await pointAt(room, true);
       await find(bySelector(".group-card"), "the group list");
       r().next();
 
-      // 3 · Page switch
-      await say(2, "Readiness can't be changed here — switch to the Randomizer.", 1200);
+      // 2 · Page switch
+      await say(1, "Readiness can't be changed here — switch to the Randomizer.", 1200);
       await pointAt(await find(bySelector(".topnav-link", "Randomizer"), "the Randomizer link"), true);
       r().addSwitch();
       r().next();
 
-      // 4 · Randomize
-      await say(3, "Mark a group not ready, then randomize.", 900);
+      // 3 · Randomize
+      await say(2, "Mark a group not ready, then randomize.", 900);
       const rows = await find((d) => {
         const all = d && [...d.querySelectorAll(".checklist-row")];
         return all && all.length ? all : null;
@@ -881,35 +859,35 @@ function DemoChapter({ demoTarget }) {
       await pwait(500);
       await pointAt(await find(bySelector("button", "Randomize order"), "Randomize order"), true);
       await find(bySelector(".order-tile"), "the randomized order");
-      await say(3, "Not-ready group lands last.", 1500);
+      await say(2, "Not-ready group lands last.", 1500);
       r().next();
 
-      // 5 · Start presentations
-      await say(4, "Start the session.", 600);
+      // 4 · Start presentations
+      await say(3, "Start the session.", 600);
       await pointAt(await find(bySelector("button", "Start presentations"), "Start presentations"), true);
       await find(bySelector(".live-timer"), "the live timer");
       r().next();
 
-      // 6 · Timer idle
-      await say(5, "The group is talking — but the clock isn't running.", 600);
+      // 5 · Timer idle
+      await say(4, "The group is talking — but the clock isn't running.", 600);
       await pointAt(await find(bySelector(".live-timer"), "the live timer"));
       await pwait(1400);
       r().addSwitch();
       r().next();
 
-      // 7 · Manual start
-      await say(6, "Instructor has to remember to press Start.", 600);
+      // 6 · Manual start
+      await say(5, "Instructor has to remember to press Start.", 600);
       const startBtn = await find(bySelector(".live-controls .btn", "Start"), "the Start button");
       await pointAt(startBtn, true);
-      await say(6, "Presenting — timer running.", 10000, true);
-      await say(6, "Switch to Q&A — its own countdown.", 300);
+      await say(5, "Presenting — timer running.", 10000, true);
+      await say(5, "Switch to Q&A — its own countdown.", 300);
       await pointAt(await find(bySelector(".live-controls .btn", "Start Q&A"), "Start Q&A"), true);
       await pwait(4000);
       await pointAt(await find(bySelector(".live-controls .btn", "Pause"), "Pause"), true);
       r().next();
 
-      // 8 · Delete risk (shown, not clicked)
-      await say(7, "Back on Groups: one click on Delete and it's gone — no confirm.", 600);
+      // 7 · Delete risk (shown, not clicked)
+      await say(6, "Back on Groups: one click on Delete and it's gone — no confirm.", 600);
       await pointAt(await find(bySelector(".live-exit"), "Exit"), true);
       const del = await find(bySelector(".group-card .btn-danger", "Delete"), "a Delete button");
       await pointAt(del);
@@ -935,12 +913,12 @@ function DemoChapter({ demoTarget }) {
       setPaused(false);
       setCursor(null);
       setAuto(false);
-      if (restoreGroup && classroom) {
+      if (restoreGroup) {
         try {
-          const groups = await fetch(`${API_BASE}/api/classrooms/${classroom.id}/groups`).then((x) => x.json());
+          const groups = await fetch(`${API_BASE}/api/groups`).then((x) => x.json());
           const g = groups.find((x) => x.name === restoreGroup);
           if (g && !g.ready) {
-            await fetch(`${API_BASE}/api/classrooms/${classroom.id}/groups/${g.id}`, {
+            await fetch(`${API_BASE}/api/groups/${g.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ready: true }),
@@ -1155,21 +1133,17 @@ function ArchitectureChapter() {
   const [active, setActive] = useState("api");
   const [health, setHealth] = useState({ state: "checking" });
   const [result, setResult] = useState(null);
-  const [classroomId, setClassroomId] = useState(null);
 
   useEffect(() => {
     const t0 = performance.now();
-    fetch(`${API_BASE}/api/classrooms`)
+    fetch(`${API_BASE}/api/groups`)
       .then((r) => r.json())
-      .then((list) => {
-        setHealth({ state: "up", ms: Math.round(performance.now() - t0) });
-        setClassroomId((list.find((c) => c.name === "CSC491") || list[0])?.id || null);
-      })
+      .then(() => setHealth({ state: "up", ms: Math.round(performance.now() - t0) }))
       .catch(() => setHealth({ state: "down" }));
   }, []);
 
   async function run(endpoint) {
-    const path = endpoint.path.replace(":id", classroomId || "missing");
+    const path = endpoint.path;
     setResult({ endpoint, path, loading: true });
     setResult({ endpoint, path, ...(await timedGet(path)) });
   }
@@ -1357,13 +1331,13 @@ function ThanksChapter({ timer }) {
         <Modal onClose={() => setAppOpen(false)} className="cx-modal-app">
           <div className="cx-app-head">
             <span className="cx-kicker">Try the Randomizer</span>
-            <a className="cx-chip-btn" href="/classrooms" target="_blank" rel="noreferrer">
+            <a className="cx-chip-btn" href="/groups" target="_blank" rel="noreferrer">
               Open in new tab ↗
             </a>
           </div>
           <iframe
             className="cx-app-frame"
-            src="/classrooms"
+            src="/groups"
             title="Kinetic Randomizer"
             onLoad={(e) => {
               // Esc inside the app also closes the pop-up.

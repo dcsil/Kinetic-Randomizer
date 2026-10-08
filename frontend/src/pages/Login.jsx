@@ -8,14 +8,14 @@ export default function Login() {
   const navigate = useNavigate();
 
   if (instructor) {
-    return <Navigate to="/classrooms" replace />;
+    return <Navigate to="/groups" replace />;
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim()) return;
     await login(name.trim());
-    navigate("/classrooms");
+    navigate("/groups");
   }
 
   return (

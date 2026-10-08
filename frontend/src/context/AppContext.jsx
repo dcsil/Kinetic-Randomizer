@@ -4,6 +4,8 @@ const AppContext = createContext(null);
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
+export const COURSE_NAME = "CSC491";
+
 async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...options.headers },
@@ -21,18 +23,10 @@ export function AppProvider({ children }) {
   const [instructor, setInstructor] = useState(
     () => localStorage.getItem("kr_instructor") || ""
   );
-  const [classrooms, setClassrooms] = useState([]);
   const [students, setStudents] = useState([]);
   const [groups, setGroups] = useState([]);
   const [order, setOrder] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [classroomId, setClassroomId] = useState(null);
-
-  async function refreshClassrooms() {
-    const loaded = await api("/api/classrooms");
-    setClassrooms(loaded);
-    return loaded;
-  }
 
   async function refreshStudents() {
     const loaded = await api("/api/students");
@@ -40,12 +34,23 @@ export function AppProvider({ children }) {
     return loaded;
   }
 
+  async function refreshGroups() {
+    const loaded = await api("/api/groups");
+    setGroups(loaded);
+    return loaded;
+  }
+
+  async function refreshPresentation() {
+    const presentation = await api("/api/presentation/current");
+    setOrder(presentation.order);
+    setCurrentIndex(presentation.currentIndex);
+    return presentation;
+  }
+
   useEffect(() => {
-    async function loadShared() {
-      await Promise.all([refreshClassrooms(), refreshStudents()]);
-    }
-    loadShared();
-  }, []);
+    if (!instructor) return;
+    Promise.all([refreshStudents(), refreshGroups(), refreshPresentation()]);
+  }, [instructor]);
 
   async function login(name) {
     const data = await api("/api/auth/login", {
@@ -59,45 +64,9 @@ export function AppProvider({ children }) {
   function logout() {
     localStorage.removeItem("kr_instructor");
     setInstructor("");
-    setClassroomId(null);
     setGroups([]);
     setOrder([]);
     setCurrentIndex(0);
-  }
-
-  async function addClassroom(payload) {
-    const created = await api("/api/classrooms", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-    setClassrooms((prev) =>
-      [...prev, created].sort((a, b) => a.name.localeCompare(b.name))
-    );
-    return created;
-  }
-
-  async function updateClassroom(id, updates) {
-    const updated = await api(`/api/classrooms/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(updates),
-    });
-    setClassrooms((prev) =>
-      prev
-        .map((classroom) => (classroom.id === id ? updated : classroom))
-        .sort((a, b) => a.name.localeCompare(b.name))
-    );
-    return updated;
-  }
-
-  async function deleteClassroom(id) {
-    await api(`/api/classrooms/${id}`, { method: "DELETE" });
-    setClassrooms((prev) => prev.filter((classroom) => classroom.id !== id));
-    if (classroomId === id) {
-      setClassroomId(null);
-      setGroups([]);
-      setOrder([]);
-      setCurrentIndex(0);
-    }
   }
 
   async function addStudent(payload) {
@@ -121,10 +90,7 @@ export function AppProvider({ children }) {
         .map((student) => (student.id === id ? updated : student))
         .sort((a, b) => a.name.localeCompare(b.name))
     );
-    if (classroomId) {
-      const loadedGroups = await api(`/api/classrooms/${classroomId}/groups`);
-      setGroups(loadedGroups);
-    }
+    await refreshGroups();
     return updated;
   }
 
@@ -147,46 +113,19 @@ export function AppProvider({ children }) {
     );
   }
 
-  async function selectClassroom(id) {
-    if (!id) {
-      setClassroomId(null);
-      setGroups([]);
-      setOrder([]);
-      setCurrentIndex(0);
-      return null;
-    }
-
-    const [loadedGroups, presentation] = await Promise.all([
-      api(`/api/classrooms/${id}/groups`),
-      api(`/api/classrooms/${id}/presentation/current`),
-    ]);
-    setClassroomId(id);
-    setGroups(loadedGroups);
-    setOrder(presentation.order);
-    setCurrentIndex(presentation.currentIndex);
-    return loadedGroups;
-  }
-
   async function addGroup(group) {
-    const created = await api(`/api/classrooms/${classroomId}/groups`, {
+    const created = await api("/api/groups", {
       method: "POST",
       body: JSON.stringify(group),
     });
     setGroups((prev) =>
       [...prev, created].sort((a, b) => a.name.localeCompare(b.name))
     );
-    setClassrooms((prev) =>
-      prev.map((classroom) =>
-        classroom.id === classroomId
-          ? { ...classroom, groupCount: classroom.groupCount + 1 }
-          : classroom
-      )
-    );
     return created;
   }
 
   async function updateGroup(id, updates) {
-    const updated = await api(`/api/classrooms/${classroomId}/groups/${id}`, {
+    const updated = await api(`/api/groups/${id}`, {
       method: "PUT",
       body: JSON.stringify(updates),
     });
@@ -199,15 +138,8 @@ export function AppProvider({ children }) {
   }
 
   async function deleteGroup(id) {
-    await api(`/api/classrooms/${classroomId}/groups/${id}`, { method: "DELETE" });
+    await api(`/api/groups/${id}`, { method: "DELETE" });
     setGroups((prev) => prev.filter((group) => group.id !== id));
-    setClassrooms((prev) =>
-      prev.map((classroom) =>
-        classroom.id === classroomId
-          ? { ...classroom, groupCount: Math.max(0, classroom.groupCount - 1) }
-          : classroom
-      )
-    );
   }
 
   async function toggleReady(id) {
@@ -217,16 +149,14 @@ export function AppProvider({ children }) {
   }
 
   async function randomize() {
-    const data = await api(`/api/classrooms/${classroomId}/randomizer/order`, {
-      method: "POST",
-    });
+    const data = await api("/api/randomizer/order", { method: "POST" });
     setOrder(data.order);
     setCurrentIndex(0);
     return data.order;
   }
 
   async function updatePresentation(updates) {
-    const data = await api(`/api/classrooms/${classroomId}/presentation/current`, {
+    const data = await api("/api/presentation/current", {
       method: "PUT",
       body: JSON.stringify(updates),
     });
@@ -236,9 +166,7 @@ export function AppProvider({ children }) {
   }
 
   async function nextGroup() {
-    const data = await api(`/api/classrooms/${classroomId}/presentation/next`, {
-      method: "POST",
-    });
+    const data = await api("/api/presentation/next", { method: "POST" });
     setOrder(data.order);
     setCurrentIndex(data.currentIndex);
   }
@@ -249,19 +177,13 @@ export function AppProvider({ children }) {
         instructor,
         login,
         logout,
-        classrooms,
-        refreshClassrooms,
-        addClassroom,
-        updateClassroom,
-        deleteClassroom,
         students,
         refreshStudents,
         addStudent,
         updateStudent,
         deleteStudent,
-        classroomId,
-        selectClassroom,
         groups,
+        refreshGroups,
         addGroup,
         updateGroup,
         deleteGroup,

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 export default function Dashboard() {
-  const { classroomId } = useParams();
   const { groups, students, addGroup, updateGroup, deleteGroup, addStudent } =
     useApp();
   const [editingId, setEditingId] = useState(null);
@@ -16,8 +15,8 @@ export default function Dashboard() {
         <div>
           <h1>Groups</h1>
           <p className="page-sub">
-            {groups.length} {groups.length === 1 ? "group" : "groups"} in this
-            classroom. Students come from the shared roster.
+            {groups.length} {groups.length === 1 ? "group" : "groups"}. Students
+            come from the shared roster.
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
@@ -81,11 +80,11 @@ export default function Dashboard() {
           )
         )}
         {groups.length === 0 && (
-          <p className="empty-state">No groups in this classroom yet — add one to get started.</p>
+          <p className="empty-state">No groups yet — add one to get started.</p>
         )}
       </div>
 
-      <Link to={`/classrooms/${classroomId}/randomizer`} className="btn btn-primary randomizer-cta">
+      <Link to="/randomizer" className="btn btn-primary randomizer-cta">
         Go to Randomizer &rarr;
       </Link>
     </div>
@@ -165,7 +164,7 @@ function GroupForm({
           <label>Students</label>
           {students.length === 0 ? (
             <p className="field-hint">
-              No students yet. Add one below or manage the shared roster from Classrooms.
+              No students yet. Add one below.
             </p>
           ) : (
             <div className="student-picker">
