@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router-dom";
 import "./App.css";
 import FontSizeControl from "./components/FontSizeControl";
@@ -8,6 +8,9 @@ import Classrooms from "./pages/Classrooms";
 import Dashboard from "./pages/Dashboard";
 import Randomizer from "./pages/Randomizer";
 import PresentationLive from "./pages/PresentationLive";
+
+// CUJ Explorer for the A2 demo; loaded on demand so the main app is unaffected.
+const Explorer = lazy(() => import("./presentation/Explorer"));
 
 function RequireAuth({ children }) {
   const { instructor } = useApp();
@@ -102,6 +105,15 @@ function Shell({ children }) {
 }
 
 function AppRoutes() {
+  const location = useLocation();
+  if (location.pathname === "/presentation") {
+    return (
+      <Suspense fallback={null}>
+        <Explorer />
+      </Suspense>
+    );
+  }
+
   return (
     <Shell>
       <Routes>
