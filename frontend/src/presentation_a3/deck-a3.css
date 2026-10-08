@@ -788,10 +788,6 @@
   color: var(--cx-muted);
 }
 
-.a3-road-skip {
-  font-size: 1rem;
-}
-
 .a3-road td,
 .a3-road tbody th {
   padding-block: 0.5rem;

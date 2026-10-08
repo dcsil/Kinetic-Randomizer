@@ -637,9 +637,6 @@ function RoadmapChapter() {
           ))}
         </tbody>
       </table>
-      <p className="cx-muted a3-rule a3-road-skip">
-        Skipped on purpose: multi-region, service mesh. Peak load today is one professor and a projector.
-      </p>
     </div>
   );
 }
