@@ -682,7 +682,7 @@ const CHAPTERS = [
   { id: "pipeline", label: "Deployment Zen", speaker: "Richard" },
   { id: "security", label: "Security & secrets", speaker: "Richard" },
   { id: "feedback", label: "Feedback → maturation", speaker: "Azaria" },
-  { id: "roadmap", label: "MVP → future", speaker: "Azaria & Richard" },
+  { id: "roadmap", label: "MVP → future", speaker: "Richard" },
   { id: "thanks", label: "Thank you", speaker: "Azaria & Richard" },
 ];
 
