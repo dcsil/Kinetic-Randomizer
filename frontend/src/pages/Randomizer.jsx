@@ -1,19 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DraggableList from "../components/DraggableList";
 import { useApp } from "../context/AppContext";
 
+// Distinct tile hues; a group keeps its colour while being dragged around.
+const TILE_HUES = [276, 25, 150, 230, 330, 85, 190, 300, 55, 120];
+
 export default function Randomizer() {
-  const { groups, toggleReady, randomize } = useApp();
+  const { groups, toggleReady, randomize, updatePresentation } = useApp();
   const [order, setOrderPreview] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   async function handleRandomize() {
+    setError("");
     const newOrder = await randomize();
     setOrderPreview(newOrder);
   }
 
-  const orderedGroups =
-    order && order.map((id) => groups.find((g) => g.id === id)).filter(Boolean);
+  async function handleReorder(nextOrder) {
+    const previous = order;
+    setOrderPreview(nextOrder);
+    setError("");
+    try {
+      await updatePresentation({ order: nextOrder, currentIndex: 0 });
+    } catch (err) {
+      setOrderPreview(previous);
+      setError(err.message);
+    }
+  }
+
+  const orderedIds = order ? order.filter((id) => groups.some((g) => g.id === id)) : [];
 
   return (
     <div className="page">
@@ -24,7 +41,7 @@ export default function Randomizer() {
             Uncheck a group to push it to the end of the presentation order.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleRandomize}>
+        <button className="btn btn-primary" onClick={handleRandomize} disabled={groups.length === 0}>
           Randomize order
         </button>
       </div>
@@ -43,18 +60,38 @@ export default function Randomizer() {
             </span>
           </label>
         ))}
+        {groups.length === 0 && (
+          <p className="empty-state">No groups yet.</p>
+        )}
       </div>
 
-      {orderedGroups && orderedGroups.length > 0 && (
+      {orderedIds.length > 0 && (
         <div className="order-result">
           <h2>Presentation order</h2>
-          <ol>
-            {orderedGroups.map((g) => (
-              <li key={g.id} className={!g.ready ? "order-item-pending" : ""}>
-                {g.name}
-              </li>
-            ))}
-          </ol>
+          <p className="field-hint">Drag the tiles to adjust the order manually.</p>
+          <DraggableList
+            items={orderedIds}
+            onReorder={handleReorder}
+            label="Presentation order"
+            horizontal
+            className="order-tiles"
+            getItemClassName={(id) =>
+              groups.find((g) => g.id === id)?.ready ? "order-tile" : "order-tile order-tile-pending"
+            }
+            renderItem={(id, index) => {
+              const groupIndex = groups.findIndex((g) => g.id === id);
+              const group = groups[groupIndex];
+              const hue = TILE_HUES[groupIndex % TILE_HUES.length];
+              return (
+                <span className="order-tile-body" style={{ "--tile-hue": hue }}>
+                  <span className="order-tile-index">{index + 1}</span>
+                  <span className="order-tile-name">{group?.name}</span>
+                  {!group?.ready && <span className="order-tile-status">Not ready</span>}
+                </span>
+              );
+            }}
+          />
+          {error && <p className="form-error">{error}</p>}
           <button
             className="btn btn-primary"
             onClick={() => navigate("/live")}

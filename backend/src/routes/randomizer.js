@@ -1,5 +1,5 @@
 import { Router } from "express";
-import db, { mapGroup } from "../db.js";
+import db from "../db.js";
 
 const router = Router();
 
@@ -13,15 +13,14 @@ function shuffle(items) {
 }
 
 router.post("/order", async (req, res) => {
-  const { rows } = await db.query(
-    "SELECT id, name, members, ready FROM groups WHERE instructor_id = $1",
+  const { rows: groups } = await db.query(
+    "SELECT id, ready FROM groups WHERE instructor_id = $1",
     [req.instructor.id]
   );
-  const groups = rows.map(mapGroup);
 
-  const ready = groups.filter((g) => g.ready);
-  const notReady = groups.filter((g) => !g.ready);
-  const order = [...shuffle(ready), ...notReady].map((g) => g.id);
+  const ready = groups.filter((group) => group.ready);
+  const notReady = groups.filter((group) => !group.ready);
+  const order = [...shuffle(ready), ...notReady].map((group) => group.id);
 
   await db.query(
     `INSERT INTO presentation_state (instructor_id, order_json, current_index)

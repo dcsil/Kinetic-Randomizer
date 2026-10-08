@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 export default function Login() {
@@ -9,8 +9,12 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { login, register } = useApp();
+  const { instructor, login, register } = useApp();
   const navigate = useNavigate();
+
+  if (instructor) {
+    return <Navigate to="/groups" replace />;
+  }
 
   const isRegister = mode === "register";
   const canSubmit =
@@ -27,7 +31,7 @@ export default function Login() {
       } else {
         await login(username.trim(), password);
       }
-      navigate("/dashboard");
+      navigate("/groups");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,7 +55,7 @@ export default function Login() {
             <input
               id="name"
               type="text"
-              placeholder="e.g. A. Kelman"
+              placeholder="e.g. Atoosa Nasiri"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
@@ -63,7 +67,7 @@ export default function Login() {
           id="username"
           type="text"
           autoComplete="username"
-          placeholder="e.g. akelman"
+          placeholder="e.g. anasiri"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoFocus={!isRegister}

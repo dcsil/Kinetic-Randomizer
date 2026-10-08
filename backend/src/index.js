@@ -4,6 +4,7 @@ import express from "express";
 import db, { initDb } from "./db.js";
 import { requireAuth } from "./auth.js";
 import authRouter from "./routes/auth.js";
+import studentsRouter from "./routes/students.js";
 import groupsRouter from "./routes/groups.js";
 import randomizerRouter from "./routes/randomizer.js";
 import presentationRouter from "./routes/presentation.js";
@@ -34,6 +35,7 @@ app.get("/healthz", async (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/students", requireAuth, studentsRouter);
 app.use("/api/groups", requireAuth, groupsRouter);
 app.use("/api/randomizer", requireAuth, randomizerRouter);
 app.use("/api/presentation", requireAuth, presentationRouter);
