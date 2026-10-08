@@ -10,6 +10,8 @@ import PresentationLive from "./pages/PresentationLive";
 
 // CUJ Explorer for the A2 demo; loaded on demand so the main app is unaffected.
 const Explorer = lazy(() => import("./presentation/Explorer"));
+// A3 cloud architecture & deployment deck; also loaded on demand.
+const DeckA3 = lazy(() => import("./presentation_a3/DeckA3"));
 
 function RequireAuth({ children }) {
   const { instructor } = useApp();
@@ -60,6 +62,13 @@ function AppRoutes() {
     return (
       <Suspense fallback={null}>
         <Explorer />
+      </Suspense>
+    );
+  }
+  if (location.pathname === "/presentation_a3") {
+    return (
+      <Suspense fallback={null}>
+        <DeckA3 />
       </Suspense>
     );
   }
