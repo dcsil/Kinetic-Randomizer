@@ -166,30 +166,95 @@ function Facts({ items }) {
 /* ------------------------------------------------------------------ */
 /* Chapters                                                            */
 /* ------------------------------------------------------------------ */
+// Digital talk timer, styled like the app's live view: a glowing ring with
+// ticks and big mono digits, counting down from 7:00 while the slide is up.
+const SCREEN_TALK = 7 * 60;
+const RING_TICKS = Array.from({ length: 60 }, (_, i) => i);
+
+function TimerScreen() {
+  // Start mid-talk so the glowing arc is already visible.
+  const [left, setLeft] = useState(4 * 60 + 48);
+  useEffect(() => {
+    const id = setInterval(() => setLeft((s) => (s <= 0 ? SCREEN_TALK : s - 1)), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const progress = 1 - left / SCREEN_TALK;
+  const r = 118;
+  const circ = 2 * Math.PI * r;
+  return (
+    <span className="a3-timer-screen">
+      <span className="a3-timer-stage">
+        <svg className="a3-timer-ring" viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r={r} className="a3-ring-track" />
+          <circle
+            cx="150"
+            cy="150"
+            r={r}
+            className="a3-ring-fill"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - progress)}
+            transform="rotate(-90 150 150)"
+          />
+          {RING_TICKS.map((i) => {
+            const a = (i / 60) * Math.PI * 2;
+            const major = i % 5 === 0;
+            const r1 = 100;
+            const r2 = major ? 88 : 94;
+            return (
+              <line
+                key={i}
+                x1={150 + Math.sin(a) * r1}
+                y1={150 - Math.cos(a) * r1}
+                x2={150 + Math.sin(a) * r2}
+                y2={150 - Math.cos(a) * r2}
+                className={`a3-ring-tick ${i / 60 <= progress ? "is-on" : ""} ${major ? "is-major" : ""}`}
+              />
+            );
+          })}
+        </svg>
+        <span className="a3-timer-readout">
+          <span className="a3-timer-phase">Talk</span>
+          <span className="a3-timer-digits">{formatClock(left)}</span>
+          <span className="a3-timer-group">Pixel Pioneers · 1 of 6</span>
+        </span>
+      </span>
+    </span>
+  );
+}
+
+// Title: team on the left, a live talk timer framed in a browser on the right.
 function TitleChapter({ health, recheck }) {
   return (
-    <div className="cx-title">
-      <h1 className="cx-hero">
-        <span className="cx-hero-brand">{TEAM.product}</span>
-      </h1>
-      <div className="cx-members">
-        {TEAM.members.map((m) => (
-          <div className="cx-member" key={m.name}>
-            <img className="cx-avatar cx-avatar-photo" src={m.photo} alt="" />
-            <span>
-              <strong>{m.name}</strong>
-              <span className="cx-muted cx-small">{m.role}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="a3-live-row">
-        <a className="a3-url" href={LIVE_URL} target="_blank" rel="noreferrer">
-          <span className="cx-live-dot" aria-hidden="true" />
-          {LIVE_HOST}
-        </a>
+    <div className="a3-title-b">
+      <div className="a3-title-b-copy">
+        <h1 className="a3-title-b-brand">{TEAM.product}</h1>
+        <div className="a3-title-b-team">
+          {TEAM.members.map((m) => (
+            <div className="a3-title-b-member" key={m.name}>
+              <img src={m.photo} alt="" />
+              <span>
+                <strong>{m.name}</strong>
+                <span className="cx-muted cx-small">{m.role}</span>
+              </span>
+            </div>
+          ))}
+        </div>
         <HealthBadge health={health} onRetry={recheck} />
       </div>
+      <a className="a3-title-b-browser" href={LIVE_URL} target="_blank" rel="noreferrer">
+        <span className="a3-title-b-bar">
+          <span className="a3-title-b-dots" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="a3-title-b-url">
+            <span className="a3-title-b-live" aria-hidden="true" />
+            {LIVE_HOST}
+          </span>
+        </span>
+        <TimerScreen />
+      </a>
     </div>
   );
 }

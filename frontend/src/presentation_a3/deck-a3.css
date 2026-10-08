@@ -21,33 +21,6 @@
 }
 
 /* ---------- Title ---------- */
-.a3-live-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.a3-url {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1.2rem;
-  border: 1px solid color-mix(in oklch, var(--cx-accent) 35%, transparent);
-  border-radius: 999px;
-  background: var(--cx-surface-solid);
-  color: var(--cx-text);
-  font-family: var(--cx-mono);
-  font-size: 1.05rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.a3-url:hover {
-  border-color: var(--cx-accent);
-}
-
 .a3-health {
   border: 1px solid var(--cx-border);
   border-radius: 999px;
@@ -875,4 +848,221 @@
 .a3-expand-block {
   display: block;
   margin: 0 0 0.5rem;
+}
+
+/* ---------- Title ---------- */
+.a3-title-b {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  align-items: center;
+  gap: 3.5rem;
+  min-height: 68vh;
+}
+
+.a3-title-b-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+
+.a3-title-b-brand {
+  margin: 0;
+  font-size: clamp(3rem, 6.2vw, 5.4rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.a3-title-b-team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.a3-title-b-member {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.a3-title-b-member img {
+  width: 4.3rem;
+  height: 4.3rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.a3-title-b-member span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.a3-title-b-member strong {
+  font-size: 1.45rem;
+}
+
+.a3-title-b-member .cx-small {
+  font-size: 1rem;
+}
+
+.a3-title-b-browser {
+  display: block;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--cx-border-strong);
+  background: var(--cx-surface-solid);
+  box-shadow: 0 30px 70px -24px oklch(22% 0.02 260 / 0.35);
+  transform: perspective(1600px) rotateY(-8deg) rotateX(2deg);
+  transition: transform 0.4s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.a3-title-b-browser:hover {
+  transform: perspective(1600px) rotateY(0) rotateX(0);
+}
+
+.a3-title-b-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--cx-border);
+  background: var(--cx-surface-2);
+}
+
+.a3-title-b-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.a3-title-b-dots i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: oklch(70% 0.17 25);
+}
+
+.a3-title-b-dots i:nth-child(2) {
+  background: oklch(82% 0.15 85);
+}
+
+.a3-title-b-dots i:nth-child(3) {
+  background: oklch(74% 0.16 150);
+}
+
+.a3-title-b-url {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: var(--cx-surface-solid);
+  font-family: var(--cx-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.a3-title-b-live {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--cx-great);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--cx-great) 22%, transparent);
+}
+
+/* Digital timer inside the browser frame, matching the app's light live view. */
+.a3-timer-screen {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  background: oklch(98% 0.004 260);
+}
+
+.a3-timer-stage {
+  position: relative;
+  width: 62%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.a3-timer-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.a3-ring-track {
+  fill: none;
+  stroke: oklch(92% 0.006 260);
+  stroke-width: 9;
+}
+
+.a3-ring-fill {
+  fill: none;
+  stroke: oklch(22% 0.02 260);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.a3-ring-tick {
+  stroke: oklch(85% 0.007 260);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.a3-ring-tick.is-major {
+  stroke-width: 2.4;
+}
+
+.a3-ring-tick.is-on {
+  stroke: oklch(48% 0.015 260);
+}
+
+.a3-timer-readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.a3-timer-phase {
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  background: oklch(95% 0.04 150);
+  color: oklch(58% 0.14 150);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.a3-timer-digits {
+  font-family: var(--cx-mono);
+  font-size: clamp(2.4rem, 4.6vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: oklch(22% 0.02 260);
+  font-variant-numeric: tabular-nums;
+}
+
+.a3-timer-group {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: oklch(48% 0.015 260);
+}
+
+/* Architecture detail panel: short phrases, so they can be read from the back. */
+.a3-root .a3-detail-grid p {
+  font-size: 1.15rem;
+  font-weight: 600;
 }
