@@ -64,12 +64,73 @@
   min-height: 68vh;
 }
 
+/* Fixed 16:9 box so the slide doesn't resize while the video loads. */
 .a3-video {
-  width: min(100%, 1100px);
-  max-height: 72vh;
+  width: min(100%, 1100px, calc(68vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
   border-radius: var(--cx-radius);
   background: #000;
   box-shadow: 0 20px 60px oklch(22% 0.02 275 / 0.25);
+}
+
+.a3-video-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+}
+
+.a3-video-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.a3-video-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Full screen: video fills the screen on black, controls stay usable. */
+.a3-video-wrap.is-full {
+  align-items: center;
+  background: #000;
+}
+
+.a3-video-wrap.is-full .a3-video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: contain;
+}
+
+.a3-full-hint {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: oklch(0% 0 0 / 0.55);
+  color: oklch(95% 0 0);
+  font-size: 0.85rem;
+  pointer-events: none;
+  animation: a3-hint-fade 3.5s ease forwards;
+}
+
+@keyframes a3-hint-fade {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .a3-promo-empty {
@@ -739,7 +800,23 @@
 /* ---------- Roadmap ---------- */
 .a3-road td,
 .a3-road th {
-  font-size: 1.1rem;
+  font-size: 1.4rem;
+}
+
+.a3-road thead th {
+  font-size: 0.85rem;
+}
+
+.a3-road-why {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--cx-muted);
+}
+
+.a3-road-skip {
+  font-size: 1rem;
 }
 
 .a3-road td,

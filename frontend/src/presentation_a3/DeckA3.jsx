@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Shares the shell styles with the A2 deck; A3-only pieces live in deck-a3.css.
 import "../presentation/explorer.css";
 import "./deck-a3.css";
@@ -15,6 +15,7 @@ import {
   LIVE_URL,
   NODES,
   PIPELINE,
+  PROMO_POSTER,
   PROMO_SRC,
   ROADMAP,
   SECRET_FACTS,
@@ -170,7 +171,6 @@ function TitleChapter({ health, recheck }) {
     <div className="cx-title">
       <h1 className="cx-hero">
         <span className="cx-hero-brand">{TEAM.product}</span>
-        <span className="cx-hero-sub">From localhost to live · Team {TEAM.name}</span>
       </h1>
       <div className="cx-members">
         {TEAM.members.map((m) => (
@@ -217,15 +217,59 @@ function PromoChapter() {
           </p>
         </div>
       ) : (
+        <PromoPlayer onError={() => setState("missing")} />
+      )}
+    </div>
+  );
+}
+
+// Promo video with sound, plus a full-screen toggle. Esc (or the button)
+// exits full screen; the browser handles Esc natively.
+function PromoPlayer({ onError }) {
+  const wrapRef = useRef(null);
+  const videoRef = useRef(null);
+  const [full, setFull] = useState(false);
+
+  useEffect(() => {
+    const onChange = () => setFull(document.fullscreenElement === wrapRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  function toggleFull() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      return;
+    }
+    const video = videoRef.current;
+    wrapRef.current.requestFullscreen?.();
+    // Clicking is a user gesture, so playback with sound is allowed.
+    video.muted = false;
+    video.volume = 1;
+    if (video.paused) video.play().catch(() => {});
+  }
+
+  return (
+    <div className="a3-video-col">
+      <div ref={wrapRef} className={`a3-video-wrap ${full ? "is-full" : ""}`}>
         <video
+          ref={videoRef}
           className="a3-video"
           src={PROMO_SRC}
+          poster={PROMO_POSTER}
           controls
           playsInline
-          preload="metadata"
-          onError={() => setState("missing")}
+          // Fetch the 23 MB file only on play; the poster holds the frame meanwhile.
+          preload="none"
+          onError={onError}
         />
-      )}
+        {full && <span className="a3-full-hint">Esc to exit full screen</span>}
+      </div>
+      <div className="a3-video-bar">
+        <button type="button" className="cx-btn cx-btn-primary" onClick={toggleFull}>
+          ⛶ Full screen
+        </button>
+      </div>
     </div>
   );
 }
@@ -526,12 +570,17 @@ function RoadmapChapter() {
                 <strong>{r.now}</strong>
               </td>
               <td className="cx-muted">{r.trigger}</td>
-              <td>{r.next}</td>
+              <td>
+                {r.next}
+                {r.why && <span className="a3-road-why">{r.why}</span>}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="cx-muted cx-small a3-rule">Skipped on purpose: multi-region, service mesh</p>
+      <p className="cx-muted a3-rule a3-road-skip">
+        Skipped on purpose: multi-region, service mesh. Peak load today is one professor and a projector.
+      </p>
     </div>
   );
 }
@@ -564,7 +613,7 @@ const CHAPTERS = [
   { id: "promo", label: "Promo video", speaker: "Azaria" },
   { id: "evolution", label: "From localhost to live", speaker: "Azaria" },
   { id: "architecture", label: "Cloud architecture", speaker: "Richard" },
-  { id: "cloud", label: "Why Render + Vercel", speaker: "Richard" },
+  { id: "cloud", label: "Why Render + Vercel", speaker: "Azaria" },
   { id: "pipeline", label: "Deployment Zen", speaker: "Richard" },
   { id: "security", label: "Security & secrets", speaker: "Richard" },
   { id: "feedback", label: "Feedback → maturation", speaker: "Azaria" },
@@ -612,6 +661,8 @@ export default function DeckA3() {
   useEffect(() => {
     function onKey(e) {
       if (e.target.closest?.("input, textarea, select, video")) return;
+      // Leave keys to the video while it is full screen.
+      if (document.fullscreenElement) return;
       if (e.key === "ArrowRight" || e.key === "PageDown") {
         e.preventDefault();
         goIndex(index + 1);

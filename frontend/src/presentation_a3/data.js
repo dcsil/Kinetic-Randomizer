@@ -7,7 +7,7 @@ export const LIVE_HOST = "kinetic-randomizer.vercel.app";
 
 export const TEAM = {
   name: "Kinetic",
-  product: "Presentation Randomizer",
+  product: "Hosted Randomizer",
   members: [
     { name: "Azaria Kelman", role: "Frontend", photo: "/presentation/azaria.jpg" },
     { name: "Richard Xu", role: "Backend", photo: "/presentation/richard.jpg" },
@@ -16,6 +16,7 @@ export const TEAM = {
 
 // Promo video: drop the exported file at frontend/public/presentation_a3/promo.mp4.
 export const PROMO_SRC = "/presentation_a3/promo.mp4";
+export const PROMO_POSTER = "/presentation_a3/promo-poster.jpg";
 
 // Slide 3: what changed between the A2 local sandbox and the A3 cloud release.
 export const EVOLUTION = [
@@ -197,11 +198,12 @@ export const FEEDBACK = [
 export const AUDIT = { prs: 19 };
 
 // Slide 9: Day One primitive → what would make us change it → the future vector.
+// `why` is the one-line justification shown under the future vector.
 export const ROADMAP = [
-  { area: "Compute", now: "Free tier", trigger: "Cold starts", next: "Always-on" },
-  { area: "Data", now: "Free Postgres", trigger: "Semester of data", next: "Backups" },
-  { area: "Identity", now: "JWT login", trigger: "Dept. adoption", next: "UofT SSO" },
-  { area: "Delivery", now: "Tag → prod", trigger: "More devs", next: "Staging" },
-  { area: "Real-time", now: "One browser", trigger: "Many screens", next: "WebSockets" },
-  { area: "Ops", now: "/healthz", trigger: "Wider use", next: "Alerts" },
+  { area: "Compute", now: "Free tier", trigger: "Cold starts", next: "Always-on", why: "No wake-up delay when class starts" },
+  { area: "Data", now: "Free Postgres", trigger: "Semester of data", next: "Backups", why: "Can't lose a term's groups" },
+  { area: "Identity", now: "JWT login", trigger: "Dept. adoption", next: "UofT SSO", why: "Profs already have a UTORid" },
+  { area: "Delivery", now: "Tag → prod", trigger: "More devs", next: "Staging", why: "Test a release before students see it" },
+  { area: "Real-time", now: "One browser", trigger: "Many screens", next: "WebSockets", why: "Timer stays in sync everywhere" },
+  { area: "Ops", now: "/healthz", trigger: "Wider use", next: "Alerts", why: "Know it's down before a class does" },
 ];
